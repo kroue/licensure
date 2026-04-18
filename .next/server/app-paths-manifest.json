@@ -1,0 +1,7 @@
+{
+  "/staff/page": "app/staff/page.js",
+  "/staff/predict/page": "app/staff/predict/page.js",
+  "/staff/processing/page": "app/staff/processing/page.js",
+  "/staff/students/page": "app/staff/students/page.js",
+  "/staff/summary/page": "app/staff/summary/page.js"
+}
