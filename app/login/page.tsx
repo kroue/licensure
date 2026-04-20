@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
+import type { Role } from '@/lib/data'
 
 type LoginLane = 'chairman' | 'staff'
 
