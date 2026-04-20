@@ -1,8 +1,7 @@
 {
   "/login/page": "app/login/page.js",
   "/page": "app/page.js",
-  "/chairman/users/page": "app/chairman/users/page.js",
   "/chairman/reports/page": "app/chairman/reports/page.js",
-  "/chairman/page": "app/chairman/page.js",
+  "/chairman/users/page": "app/chairman/users/page.js",
   "/chairman/predictions/page": "app/chairman/predictions/page.js"
 }
