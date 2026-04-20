@@ -96,10 +96,28 @@ function canonicalizeColumn(header: string): string {
 }
 
 function parseCsv(csvText: string): { rows: Array<Record<string, string>>; headers: string[] } {
+  const seenHeaders = new Set<string>()
   const parsed = Papa.parse<Record<string, string>>(csvText, {
     header: true,
     skipEmptyLines: 'greedy',
-    transformHeader: (header: string) => canonicalizeColumn(header),
+    transformHeader: (header: string) => {
+      const candidate = canonicalizeColumn(header)
+      if (candidate && !seenHeaders.has(candidate)) {
+        seenHeaders.add(candidate)
+        return candidate
+      }
+
+      const base = header.trim() || 'Unnamed'
+      let fallback = base
+      let index = 2
+      while (seenHeaders.has(fallback)) {
+        fallback = `${base}_${index}`
+        index += 1
+      }
+
+      seenHeaders.add(fallback)
+      return fallback
+    },
   })
 
   if (parsed.errors.length > 0) {

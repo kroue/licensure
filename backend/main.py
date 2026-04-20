@@ -630,4 +630,17 @@ def predict(request: PredictRequest) -> dict[str, Any]:
                 "HPGE_AVE": float(row.get("HPGE_AVE") or 0),
                 "PSAD_AVE": float(row.get("PSAD_AVE") or 0),
                 "prediction": label,
-                "probability": failed_prob if label == "FAILED" else (1.0 - failed_prob),
+                "probability": failed_prob if label == "FAILED" else (1.0 - failed_prob),
+                "Age": row.get("Age"),
+                "Gender": row.get("Gender") or "Unknown",
+                "Year_Level": str(row.get("Year_Level") or "4th Year"),
+                "Exam_year": row.get("Exam_year"),
+                "Months_prep": row.get("Months_prep"),
+                "Father_Monthly_Income": str(row.get("Father_Monthly_Income") or "N/A"),
+                "Mother_Monthly_Income": str(row.get("Mother_Monthly_Income") or "N/A"),
+                "Father_Educational_Attainment": str(row.get("Father_Educational_Attainment") or "N/A"),
+                "Mother_Educational_Attainment": str(row.get("Mother_Educational_Attainment") or "N/A"),
+            }
+        )
+
+    return {"predictions": predictions}
