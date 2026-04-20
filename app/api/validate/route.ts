@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
 
-const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL ?? 'http://127.0.0.1:8000'
+const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL
+  ?? (process.env.VERCEL ? 'https://licensure-pi.vercel.app' : 'http://127.0.0.1:8000')
 const BACKEND_TIMEOUT_MS = 20000
 
 export async function POST(request: Request) {
