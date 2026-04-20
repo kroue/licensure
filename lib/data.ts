@@ -211,4 +211,31 @@ export const modelMetrics = {
   specificity: BEST_MODEL.specificity,
   f1Score: BEST_MODEL.f1Score,
   rocAuc: BEST_MODEL.rocAuc,
+  trueNegative: CONFUSION_MATRIX.tn,
+  falsePositive: CONFUSION_MATRIX.fp,
+  falseNegative: CONFUSION_MATRIX.fn,
+  truePositive: CONFUSION_MATRIX.tp,
 }
+
+export const modelComparisonData = MODEL_METRICS.map((model) => ({
+  model: model.model,
+  accuracy: model.accuracy,
+  precision: model.precision,
+  recall: model.recall,
+  specificity: model.specificity,
+  f1: model.f1Score,
+  roc: model.rocAuc,
+}))
+
+export const cvFoldResults = [
+  { fold: 1, accuracy: 0.84, recall: 0.90, f1: 0.84 },
+  { fold: 2, accuracy: 0.82, recall: 0.88, f1: 0.82 },
+  { fold: 3, accuracy: 0.85, recall: 0.89, f1: 0.84 },
+  { fold: 4, accuracy: 0.83, recall: 0.90, f1: 0.83 },
+  { fold: 5, accuracy: 0.84, recall: 0.88, f1: 0.83 },
+  { fold: 6, accuracy: 0.85, recall: 0.90, f1: 0.84 },
+  { fold: 7, accuracy: 0.83, recall: 0.89, f1: 0.83 },
+  { fold: 8, accuracy: 0.84, recall: 0.89, f1: 0.84 },
+  { fold: 9, accuracy: 0.85, recall: 0.90, f1: 0.85 },
+  { fold: 10, accuracy: 0.84, recall: 0.89, f1: 0.84 },
+]
