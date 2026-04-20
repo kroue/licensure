@@ -1,0 +1,153 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userEmail() {
+      return request.auth.token.email;
+    }
+
+    function isChairmanEmail() {
+      return userEmail() == "chairman@ustp.edu.ph";
+    }
+
+    function isDeanEmail() {
+      return userEmail() == "dean@ustp.edu.ph";
+    }
+
+    function isChairmanOrDean() {
+      return isChairmanEmail() || isDeanEmail();
+    }
+
+    function isOwner(data) {
+      return isSignedIn()
+        && data.uid is string
+        && data.uid == request.auth.uid;
+    }
+
+    function validRoleValue(role) {
+      return role in ["Chairman", "Dean", "Staff"];
+    }
+
+    function validStatusValue(status) {
+      return status in ["Active", "Inactive"];
+    }
+
+    function hasRequiredUserFields(data) {
+      return data.keys().hasAll(["uid", "name", "email", "role", "status"])
+        && data.uid is string
+        && data.name is string
+        && data.email is string
+        && validRoleValue(data.role)
+        && validStatusValue(data.status);
+    }
+
+    function selfRoleMatchesEmail(data) {
+      return (isChairmanEmail() && data.role == "Chairman")
+        || (isDeanEmail() && data.role == "Dean")
+        || (!isChairmanOrDean() && data.role == "Staff");
+    }
+
+    function ownerWriteIsSafe() {
+      return request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.status == resource.data.status
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(["lastLogin", "updatedAt", "name"]);
+    }
+
+    match /system_users/{userDocId} {
+      allow read: if isSignedIn();
+
+      allow create: if isSignedIn()
+        && hasRequiredUserFields(request.resource.data)
+        && (
+          isChairmanOrDean()
+          || (
+            request.resource.data.uid == request.auth.uid
+            && request.resource.data.email == userEmail()
+            && request.resource.data.status == "Active"
+            && selfRoleMatchesEmail(request.resource.data)
+          )
+        );
+
+      allow update: if isSignedIn()
+        && (
+          isChairmanOrDean()
+          || (isOwner(resource.data) && ownerWriteIsSafe())
+        );
+
+      allow delete: if isSignedIn() && isChairmanOrDean();
+    }
+
+    match /prediction_runs/{runId} {
+      allow create: if isSignedIn()
+        && request.resource.data.runBy.uid == request.auth.uid;
+
+      allow read: if isSignedIn() && (
+        isChairmanOrDean()
+        || resource.data.runBy.uid == request.auth.uid
+      );
+
+      allow update, delete: if false;
+    }
+
+    match /upload_history/{uploadId} {
+      allow create, update: if isSignedIn()
+        && request.resource.data.runBy.uid == request.auth.uid;
+
+      allow read: if isSignedIn() && (
+        isChairmanOrDean()
+        || resource.data.runBy.uid == request.auth.uid
+      );
+
+      allow delete: if false;
+    }
+
+    match /prediction_rows/{rowId} {
+      allow create: if isSignedIn()
+        && request.resource.data.runBy.uid == request.auth.uid;
+
+      allow read: if isSignedIn() && (
+        isChairmanOrDean()
+        || resource.data.runBy.uid == request.auth.uid
+      );
+
+      allow update: if isSignedIn() && (
+        isChairmanOrDean()
+        || (
+          resource.data.runBy.uid == request.auth.uid
+          && request.resource.data.runBy.uid == resource.data.runBy.uid
+          && request.resource.data.uploadId == resource.data.uploadId
+          && request.resource.data.runId == resource.data.runId
+          && request.resource.data.fileName == resource.data.fileName
+          && request.resource.data.predictionGeneratedAt == resource.data.predictionGeneratedAt
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly([
+            "student",
+            "updatedAt"
+          ])
+        )
+      );
+
+      allow delete: if false;
+    }
+
+    match /audit_logs/{logId} {
+      allow create: if isSignedIn()
+        && request.resource.data.actor.uid == request.auth.uid;
+
+      allow read: if isSignedIn() && (
+        isChairmanOrDean()
+        || resource.data.actor.uid == request.auth.uid
+      );
+
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

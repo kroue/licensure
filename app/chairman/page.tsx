@@ -1,124 +1,284 @@
 'use client'
-import { mockStudents, modelMetrics } from '@/lib/data'
-import { TrendingUp, TrendingDown, Users, BarChart3, CheckCircle, AlertTriangle, Brain } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
 
-const passed = mockStudents.filter(s => s.prediction === 'PASSED').length
-const failed = mockStudents.filter(s => s.prediction === 'FAILED').length
-const total = mockStudents.length
-const passRate = ((passed / total) * 100).toFixed(1)
+import Link from 'next/link'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AlertTriangle, BarChart3, CheckCircle2, Clock3, Users } from 'lucide-react'
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useAuth } from '@/lib/auth'
+import {
+  createAuditLog,
+  getLatestPredictionRunAnalytics,
+  getPredictionRowsAnalyticsByRunId,
+  type PredictionRowAnalytics,
+  type PredictionRunAnalyticsRecord,
+} from '@/lib/firebase'
 
-const pieData = [
-  { name: 'Predicted Pass', value: passed },
-  { name: 'Predicted Fail', value: failed },
-]
-const PIE_COLORS = ['#0B2C5D', '#F2B705']
+type ConfidenceBucket = {
+  label: '90-100%' | '80-89%' | '70-79%' | '60-69%'
+  count: number
+}
 
-const examYearData = [
-  { year: '2021', passed: 18, failed: 7 },
-  { year: '2022', passed: 22, failed: 5 },
-  { year: '2023', passed: 25, failed: 8 },
-  { year: '2024', passed: passed, failed: failed },
-]
+function getConfidence(row: PredictionRowAnalytics): number {
+  const student = row.student as Record<string, unknown>
+  const raw = student['probability']
+  if (typeof raw !== 'number' || Number.isNaN(raw)) return 0
+  const confidence = Math.max(raw, 1 - raw)
+  return Math.max(0, Math.min(1, confidence))
+}
 
 export default function ChairmanDashboard() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [latestRun, setLatestRun] = useState<PredictionRunAnalyticsRecord | null>(null)
+  const [rowAnalytics, setRowAnalytics] = useState<PredictionRowAnalytics[]>([])
+  const hasLoggedDashboardView = useRef(false)
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setLoading(false)
+      return
+    }
+
+    if (!hasLoggedDashboardView.current) {
+      hasLoggedDashboardView.current = true
+      void createAuditLog({
+        action: 'View Dashboard',
+        details: 'Accessed chairman dashboard overview',
+        status: 'Success',
+        actor: {
+          uid: user.uid,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+      })
+    }
+
+    const loadDashboard = async () => {
+      try {
+        setLoading(true)
+        const latest = await getLatestPredictionRunAnalytics({ uid: user.uid, role: user.role })
+        setLatestRun(latest)
+
+        if (latest?.id) {
+          const rows = await getPredictionRowsAnalyticsByRunId(latest.id, { uid: user.uid, role: user.role })
+          setRowAnalytics(rows)
+        } else {
+          setRowAnalytics([])
+        }
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load dashboard analytics.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void loadDashboard()
+  }, [user?.role, user?.uid])
+
+  const confidenceBuckets = useMemo<ConfidenceBucket[]>(() => {
+    const buckets: ConfidenceBucket[] = [
+      { label: '90-100%', count: 0 },
+      { label: '80-89%', count: 0 },
+      { label: '70-79%', count: 0 },
+      { label: '60-69%', count: 0 },
+    ]
+
+    rowAnalytics.forEach((row) => {
+      const confidencePct = getConfidence(row) * 100
+      if (confidencePct >= 90) buckets[0].count += 1
+      else if (confidencePct >= 80) buckets[1].count += 1
+      else if (confidencePct >= 70) buckets[2].count += 1
+      else if (confidencePct >= 60) buckets[3].count += 1
+    })
+
+    return buckets
+  }, [rowAnalytics])
+
+  const overview = useMemo(() => {
+    const total = latestRun?.totalAnalyzed ?? 0
+    const passRate = latestRun?.passRate ?? 0
+    const atRisk = latestRun?.failedCount ?? 0
+    const fallbackAccuracy = rowAnalytics.length > 0
+      ? (rowAnalytics.reduce((sum, row) => sum + getConfidence(row), 0) / rowAnalytics.length) * 100
+      : 0
+    const modelAccuracy = latestRun?.modelAccuracy ?? fallbackAccuracy
+
+    return {
+      total,
+      passRate,
+      atRisk,
+      modelAccuracy,
+      highRisk: latestRun?.highRiskCount ?? 0,
+      mediumRisk: latestRun?.mediumRiskCount ?? 0,
+      lowRisk: latestRun?.lowRiskCount ?? 0,
+    }
+  }, [latestRun, rowAnalytics])
+
+  const riskTotal = overview.highRisk + overview.mediumRisk + overview.lowRisk
+  const riskPieData = [
+    { name: 'High Risk', value: overview.highRisk, color: '#ef4444' },
+    { name: 'Medium Risk', value: overview.mediumRisk, color: '#f59e0b' },
+    { name: 'Low Risk', value: overview.lowRisk, color: '#10b981' },
+  ]
+
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Prediction Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Overview of student licensure exam predictions · Batch 2024</p>
-      </div>
+    <div className="p-8 max-w-7xl space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold" style={{ color: '#0B2C5D' }}>Dashboard Overview</h1>
+        <p className="text-sm text-gray-600 mt-2">Strategic insights and prediction summary for Civil Engineering licensure exam</p>
+      </header>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         {[
-          { label: 'Total Students', value: total, sub: 'Current batch', icon: Users, color: '#0B2C5D', bg: '#e8edf5' },
-          { label: 'Predicted to Pass', value: passed, sub: `${passRate}% pass rate`, icon: CheckCircle, color: '#16a34a', bg: '#f0fdf4' },
-          { label: 'At-Risk Students', value: failed, sub: 'Need intervention', icon: AlertTriangle, color: '#dc2626', bg: '#fef2f2' },
-          { label: 'Model Accuracy', value: `${(modelMetrics.accuracy * 100).toFixed(1)}%`, sub: 'Random Forest · 10-fold CV', icon: Brain, color: '#F2B705', bg: '#fefce8' },
-        ].map(({ label, value, sub, icon: Icon, color, bg }) => (
-          <div key={label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-gray-500 text-xs font-medium uppercase tracking-wide">{label}</p>
-                <p className="text-3xl font-bold mt-1" style={{ color }}>{value}</p>
-                <p className="text-gray-400 text-xs mt-1">{sub}</p>
+          {
+            icon: Users,
+            value: overview.total,
+            label: 'Total Students Analyzed',
+            iconBg: '#e8edf5',
+            iconColor: '#2563eb',
+            formatter: (val: number) => val.toLocaleString(),
+          },
+          {
+            icon: BarChart3,
+            value: overview.passRate,
+            label: 'Predicted Pass Rate',
+            iconBg: '#ecfdf3',
+            iconColor: '#16a34a',
+            formatter: (val: number) => `${val.toFixed(1)}%`,
+          },
+          {
+            icon: AlertTriangle,
+            value: overview.atRisk,
+            label: 'At-Risk Students',
+            iconBg: '#fef2f2',
+            iconColor: '#ef4444',
+            formatter: (val: number) => val.toLocaleString(),
+          },
+          {
+            icon: CheckCircle2,
+            value: overview.modelAccuracy,
+            label: 'Model Accuracy',
+            iconBg: '#fffbeb',
+            iconColor: '#d4a106',
+            formatter: (val: number) => `${val.toFixed(1)}%`,
+          },
+        ].map((card) => {
+          const Icon = card.icon
+          return (
+            <article key={card.label} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-5 h-12 w-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: card.iconBg }}>
+                <Icon className="h-6 w-6" style={{ color: card.iconColor }} />
               </div>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: bg }}>
-                <Icon className="w-5 h-5" style={{ color }} />
-              </div>
-            </div>
+              <div className="text-3xl font-semibold" style={{ color: '#0B2C5D' }}>{card.formatter(card.value)}</div>
+              <p className="text-sm text-gray-600 mt-2">{card.label}</p>
+            </article>
+          )
+        })}
+      </section>
+
+      <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-[#0B2C5D] mb-4 inline-flex items-center gap-2">
+            <Clock3 className="h-5 w-5" />
+            Risk Distribution
+          </h2>
+
+          <div className="h-[360px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={riskPieData}
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={120}
+                  innerRadius={0}
+                  paddingAngle={1}
+                  dataKey="value"
+                >
+                  {riskPieData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-        ))}
-      </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
-        {/* Bar Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-700 mb-1">Predictions by Exam Year</h3>
-          <p className="text-gray-400 text-xs mb-5">Historical pass/fail prediction trend</p>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={examYearData} barGap={4}>
-              <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="passed" name="Predicted Pass" fill="#0B2C5D" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="failed" name="Predicted Fail" fill="#F2B705" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Pie Chart */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-700 mb-1">Current Batch Breakdown</h3>
-          <p className="text-gray-400 text-xs mb-4">Pass vs Fail distribution</p>
-          <ResponsiveContainer width="100%" height={180}>
-            <PieChart>
-              <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
-                {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="mt-4 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Pass Rate</span>
-              <span className="font-bold" style={{ color: '#0B2C5D' }}>{passRate}%</span>
-            </div>
-            <div className="w-full bg-gray-100 rounded-full h-2">
-              <div className="h-2 rounded-full" style={{ width: `${passRate}%`, backgroundColor: '#0B2C5D' }} />
-            </div>
+          <div className="grid grid-cols-3 gap-3 text-sm mt-2">
+            <p style={{ color: '#ef4444' }}>High Risk: {riskTotal > 0 ? ((overview.highRisk / riskTotal) * 100).toFixed(0) : '0'}%</p>
+            <p style={{ color: '#f59e0b' }}>Medium Risk: {riskTotal > 0 ? ((overview.mediumRisk / riskTotal) * 100).toFixed(0) : '0'}%</p>
+            <p style={{ color: '#10b981' }}>Low Risk: {riskTotal > 0 ? ((overview.lowRisk / riskTotal) * 100).toFixed(0) : '0'}%</p>
           </div>
-        </div>
-      </div>
+        </article>
 
-      {/* Model Performance Summary */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <h3 className="font-semibold text-gray-700 mb-1">Model Performance Summary</h3>
-        <p className="text-gray-400 text-xs mb-5">Random Forest · 10-Fold Cross-Validation (10 iterations)</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-[#0B2C5D] mb-4 inline-flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Prediction Confidence Overview
+          </h2>
+
+          <div className="h-[360px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={confidenceBuckets} margin={{ top: 10, right: 20, left: 0, bottom: 20 }}>
+                <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#4b5563' }} />
+                <YAxis tick={{ fontSize: 12, fill: '#4b5563' }} allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#0B2C5D" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <p className="text-sm text-gray-600">Distribution of prediction confidence levels across all analyzed students</p>
+        </article>
+      </section>
+
+      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-[#0B2C5D] mb-5">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
-            { label: 'Accuracy', value: modelMetrics.accuracy, color: '#0B2C5D' },
-            { label: 'Precision', value: modelMetrics.precision, color: '#1d4ed8' },
-            { label: 'Recall', value: modelMetrics.recall, color: '#16a34a' },
-            { label: 'Specificity', value: modelMetrics.specificity, color: '#7c3aed' },
-            { label: 'F1-Score', value: modelMetrics.f1Score, color: '#ea580c' },
-            { label: 'ROC AUC', value: modelMetrics.rocAuc, color: '#F2B705' },
-          ].map(({ label, value, color }) => (
-            <div key={label} className="text-center p-3 rounded-lg bg-gray-50">
-              <div className="text-2xl font-bold" style={{ color }}>{(value * 100).toFixed(1)}%</div>
-              <div className="text-gray-500 text-xs mt-1 font-medium">{label}</div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div className="h-1.5 rounded-full" style={{ width: `${value * 100}%`, backgroundColor: color }} />
-              </div>
-            </div>
+            {
+              href: '/chairman/predictions',
+              title: 'View Student Predictions',
+              desc: 'Detailed prediction results for each student',
+            },
+            {
+              href: '/chairman/reports',
+              title: 'Generate Reports',
+              desc: 'Create comprehensive predictive reports',
+            },
+            {
+              href: '/chairman/users',
+              title: 'User Management',
+              desc: 'Manage user accounts and role assignments',
+            },
+          ].map((action) => (
+            <Link key={action.title} href={action.href} className="rounded-2xl border border-gray-200 bg-white p-5 hover:shadow-sm transition-all">
+              <p className="text-lg font-semibold text-[#0B2C5D]">{action.title}</p>
+              <p className="text-sm text-gray-600 mt-2">{action.desc}</p>
+            </Link>
           ))}
         </div>
-      </div>
+      </section>
+
+      {loading && (
+        <section className="rounded-2xl border border-gray-200 bg-white px-6 py-4 text-sm text-gray-600">
+          Loading dashboard analytics from Firestore...
+        </section>
+      )}
+
+      {!loading && !latestRun && (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50 px-6 py-4 text-sm text-amber-800">
+          No prediction analytics found yet. Have staff run a prediction first.
+        </section>
+      )}
+
+      {error && (
+        <section className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+          {error}
+        </section>
+      )}
     </div>
   )
 }

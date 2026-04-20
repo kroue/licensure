@@ -119,7 +119,7 @@ export default function ValidatePage() {
       })
 
       const backendPayload = await response.json() as UploadCleaningResult | { error?: string }
-      if (!response.ok || !('cleanedRows' in backendPayload)) {
+      if (!response.ok || !('totalRows' in backendPayload) || !('validRows' in backendPayload)) {
         throw new Error(('error' in backendPayload && backendPayload.error) ? backendPayload.error : 'Validation API failed.')
       }
 
@@ -149,7 +149,8 @@ export default function ValidatePage() {
         return
       }
 
-      saveCleanedRows(result.cleanedRows)
+      // Keep cleaned rows in backend memory keyed by uploadId; avoid writing large blobs to sessionStorage.
+      saveCleanedRows([])
       setStatus('success')
       setMessage('Validation successful. Your data is ready for processing and prediction.')
     } catch (error) {

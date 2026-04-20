@@ -35,7 +35,7 @@ The system now uses a Python backend for validation and prediction based on your
 ```bash
 cd backend
 pip install -r requirements.txt
-uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
 In another terminal:
