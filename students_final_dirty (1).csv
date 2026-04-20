@@ -1,0 +1,309 @@
+Student_Code,Student_ID,Student_Name,Email,MSTE_AVE,HPGE_AVE,PSAD_AVE,GWA,COMPREHENSION_INDEX,Graduated_with_Latin,Age,Gender,Father_Monthly_Income,Father_Educational_Attainment,Mother_Monthly_Income,Mother_Educational_Attainment,Location,Exam_year,Months_prep,Year_Level
+11-22-01,2014100409,"TORRES, ANA FERNANDEZ",ana_torres20@gmail.com,2.42,2.35,2.62,2.34,1.54,NO,23,F,5000-9999,College level,"PHP 15,000",College Graduate,Outside City,2022,6,4th Year
+11-22-02,2017100106,"MAGNO, CHARLES LEMOSENIRO",charles.magno@outlook.com,1.85,1.77,2.45,1.9,1.95,NO,24,male,middle income,High School Graduate,MIDDLE INCOME,Master's Degree,Outside City,2022,6,4th Year
+11-22-03,2018109459,"GINGONE, KENNETH HIPONA",kennethgingone@gmail.com,2.33,2.47,2.73,2.62,1.98,0,27,M,20000,High School Graduate,5000-9999,N/A,Outside City,2022,6,5th Year
+11-22-04,2015108751,"DELA PEÑA, PAOLO VEDRA",paolo.delapea56@gmail.com,1.84,2.66,2.36,2.2,,NO,20,M,,Highschool Level,Low Income,,Within City,2022,6,4th Year
+11-22-05,2020106482,"LOPEZ, RIKKA MELISSE FERNANDEZ",rikka.lopez12@gmail.com,1.81,2.2,1.83,1.97,2.0,NO,22,F,Low Income,N/A,Low Income,N/A,Within City,2022,6,4th Year
+11-22-06,2019106252,"MENDOZA, VERA MORALES",veramendoza@hotmail.com,2.58,1.51,2.4,2.22,1.83,NO,30,F,Low Income,N/A,Low Income,N/A,Outside City,2022,6,4th Year
+11-22-07,2014104889,"AGUILAR, MARK MAGNO",mark.aguilar74@gmail.com,1.7,2.69,2.65,2.47,2.11,false,21,1,High Income,College Graduate,Middle Income,Highschool Level,Within City,2022,6,4th Year
+11-22-08,2014101403,"GUEVARA, ROSE DAISY JANE SUAREZ",rose.guevara@outlook.com,1.66,2.32,2.68,2.12,2.26,NO,23,Female,High Income,College Graduate,Middle Income,College Graduate,Out of City,2022,6,4th Year
+11-22-09,2021107397,"TORRES, AARON JAGUALING",aaron_torres@hotmail.com,1.92,2.24,1.79,1.9,N/A,NO,23,M,Low Income,Highschool Level,Low Income,High School Graduate,Outside City,2022,6,5th Year
+11-22-10,2015109355,"TRINIDAD, ANA JAVIER",ana_trinidad@gmail.com,2.01,1.62,2.32,1.94,,YES,30,F,High Income,High School Graduate,Low Income,Highschool Level,,2022,6,4th Year
+11-22-11,2021107350,"AMARGA, CHRISTIAN OGUIMAS",christianamarga@outlook.com,2.08,2.59,1.59,2.18,1.62,NO,30,M,High Income,Master's Degree,Middle Income,College Graduate,Within City,2022,6,4th Year
+11-22-12,2020103502,"AGCOPRA, MERIAN VEDRA",merian.agcopra@hotmail.com,1.5,1.99,2.66,2.14,2.37,0,31,F,high income,College Graduate,Mid-Income,N/A,Outside City,2022,6,4th Year
+11-22-13,2021100998,"CASANE, MERIAN DIZON",merian.casane@icloud.com,2.1,2.65,2.16,2.17,2.56,NO,21,F,Middle Income,N/A,Middle Income,N/A,Within City,2022,6,4th Year
+11-22-14,2019109562,"CRUZ, LIZA HERNANDEZ",lizacruz69@outlook.com,2.4,1.8,1.99,2.11,1.9,NO,32,F,High Income,College level,Low Income,College level,Within City,2022,6,4
+11-22-15,2021104345,"GINGONE, OSCAR BERNARDO",oscar_gingone75@outlook.com,1.81,1.86,2.05,1.92,2.73,NO,28,M,Low Income,Elementary Graduate,Middle Income,College Graduate,Within City,2022,6,Fourth Year
+11-22-16,2014109064,"AQUINO, EDWIN MANALO",edwin_aquino@yahoo.com,1.76,1.93,2.36,2.12,1.81,NO,20,M,<10000,Elementary Graduate,≤9999,N/A,Within City,2022,6,Year 4
+11-22-17,2020109038,"ALBISO, CARLA NANOL",carla.albiso74@hotmail.com,1.59,2.6,2.63,2.29,2.23,NO,22,F,Low Income,High School Graduate,Low Income,College Graduate,Within City,2022,6,Yr. 5
+11-22-18,2016101684,"LACSON, CARMEN BERNARDO",carmen_lacson44[at]outlook.com,2.59,2.72,2.44,2.71,1.7,NO,32,0,Middle Income,-,Middle Income,CG,Outside City,2022,6,4th Year
+11-22-19,2016104371,"RAYPON, FERDINAND VEDRA",ferdinandraypon@hotmail.com,2.59,2.57,1.78,2.41,1.88,NO,32,M,Middle Income,College Graduate,Low Income,High School Graduate,Outside City,2022,6,5th Year
+11-22-20,2017105753,"GUEVARA, JANINE LEMOSENIRO",janine_guevara22@yahoo.com,2.67,1.64,2.71,"2,24",1.83,NO,21,F,Middle Income,College Graduate,Low Income,High School Graduate,Within City,2022,6,5th Year
+11-22-21,2016104173,"TOLENTINO, KENNETH ARIAS",kenneth_tolentino@gmail.com,2.15,2.51,2.36,2.47,1.75,NO,26,M,LOW INCOME,Highschool Level,mid income,Highschool Level,Within City,2022,6,4th Year
+11-22-22,2019105344,"BAUTISTA, MARICEL MORALES",maricelbautista74@outlook.com,1.66,2.03,2.68,2.18,2.27,NO,24,F,Low Income,Highschool Level,Middle Income,N/A,Outside City,2022,6,Yr. 4
+11-22-23,2016108375,"AGCOPRA, DOLORES HERNANDEZ",doloresagcopra45@hotmail.com,1.61,2.14,2.29,1.96,2.44,NO,23,F,Middle Income,N/A,Low Income,Master's Degree,Within City,2022,6,5th Year
+11-22-24,2016106291,"RAMOS, DIANA TADEO",diana_ramos@outlook.com,2.32,1.51,2.44,2.17,2.03,NO,22,F,Middle Income,High School Graduate,Middle Income,College level,Within City,2022,6,5th Year
+11-22-25,2020108702,"DELOS REYES, FELICIA SORIANO",felicia_delosreyes@gmail.com,2.52,2.62,2.03,2.51,1.7,NO,27,F,5000-9999,College Grad,10000-30000,Elementary Graduate,Outside City,2022,6,5th Year
+11-22-26,2014104681,"LIM, EDWIN BEHAGAN",edwinlim90@hotmail.com,2.62,1.6,1.69,1.93,1.77,NO,25,M,Low Income,N/A,Low Income,High School Graduate,Within City,2022,6,4th Year
+11-22-27,2018104892,"GUEVARA, FLORA ESTRADA",,2.42,2.5,2.62,2.51,2.11,NO,26,F,Low Income,High School Graduate,Middle Income,N/A,Outside City,2022,,4th Year
+11-22-28,2021100441,"MADRIGAL, JENNIFER HERNANDEZ",jennifermadrigal@icloud.com,1.53,2.3,1.67,1.82,N/A,NO,23,female,≤9999,College Graduate,5000-9999,Elementary Graduate,Outside City,2022,6,5th Year
+11-22-29,2020100317,"TORRES, OSCAR AGUILAR",oscar_torres@icloud.com,1.59,2.7,1.55,1.81,2.55,NO,23,M,Low Income,College level,Middle Income,N/A,Outside City,2022,6,4th Year
+11-22-30,2014102683,"PAREDES, JERICA MAE BETINOL",jerica.paredes28@yahoo.com,2.66,2.22,2.64,2.47,1.75,No,29,F,Middle Income,N/A,Middle Income,College Graduate,Within City,2022,6,4th Year
+11-22-31,2019106071,"TAN, EDMON JULES ARIAS",edmontan32@icloud.com,2.56,2.53,1.63,2.38,2.54,NO,31,M,Low Income,High School Graduate,Low Income,College Graduate,Outside City,2022,6,5th Year
+11-22-32,2017105280,"VILLANUEVA, ANDRE JOHANN BERNARDO",andre_villanueva@icloud.com,2.06,2.44,2.21,2.29,2.12,NO,25,M,Low Income,College Graduate,Low Income,Highschool Level,Outside City,2022,6,4th Year
+11-22-33,2016101402,"SALAZAR, PATRICK TORRES",patrick_salazar71@yahoo.com,2.19,1.8,2.1,2.09,1.52,NO,24,M,Low Income,Highschool Level,Middle Income,College level,Outside City,2022,6,5th Year
+11-22-34,2021105419,"BERNARDO, MARICEL OGUIMAS",maricel_bernardo71@icloud.com,1.88,1.79,2.4,1.97,2.69,NO,23,F,Low Income,College Graduate,Low Income,Master's Degree,Outside City,2022,6,5th Year
+11-22-35,2017103727,"OCAMPO, MARY ROSE ARIAS",mary_ocampo88@yahoo.com,2.39,1.66,1.56,1.74,2.68,YES,32,F,low,College level,Middle income,High School Graduate,Outside City,2022,6,5th Year
+11-22-36,2013104136,"GINGONE, MARY JOY SANTOS",mary.gingone@yahoo.com,2.11,2.22,2.36,2.13,2.69,NO,21,F,High Income,College Graduate,Low Income,College level,Within City,2022,6,4th Year
+11-22-37,2020104871,"MADRIGAL, CLARA SORIANO",clara.madrigal@gmail.com,1.58,2.7,1.62,2.05,1.83,NO,21,F,Low Income,N/A,Low Income,N/A,Outside City,2022,6,5th Year
+11-22-38,2016104720,"BERNARDO, MARICEL JAGUALING",maricel_bernardo@outlook.com,2.36,2.65,2.48,2.53,2.67,NO,26,F,Low Income,N/A,Low Income,Elementary Graduate,Within City,2022,6,4th Year
+11-22-39,2017109749,"SYLEE, JASMINE RAMOS",jasmine_sylee@icloud.com,2.36,2.37,2.68,2.47,1.6,NO,20,F,Middle Income,College level,Middle Income,N/A,Within City,2022,6,5th Year
+11-22-40,2017109441,"ALPAS, ARISTOTLE GARCIA",aristotlealpas48@yahoo.com,2.15,2.05,1.85,2.17,2.52,NO,21,M,Low Income,Highschool Level,Low Income,N/A,Within City,2022,6,Yr. 4
+11-22-41,2020104722,"JAVIER, FELICIA HIPONA",feliciajavier@icloud.com,2.07,1.89,1.9,2.09,2.14,NO,20,F,Middle Income,High School Graduate,Low Income,N/A,Outside City,2022,6,5th Year
+11-22-42,2013103335,"TALJA, CARLA GUIBONE",carlatalja72@icloud.com,2.05,2.37,1.65, 2.17,1.8,NO,22,F,Low Income,High School Graduate,Low Income,N/A,Within City,2022,6,5th Year
+11-22-43,2015108165,"CASTILLO, TANYA REYES",tanya_castillo@icloud.com,2.54,2.73,1.8,2.37,2.65,NO,28,F,Middle Income,N/A,Low Income,College Graduate,Outside City,2022,6,4th Year
+11-22-44,2021104377,"OCAMPO, GERALD NATIVIDAD",geraldocampo@yahoo.com,2.23,2.75,2.11,2.26,1.93,NO,28,M,Middle Income,College Graduate,Low Income,College Graduate,in city,2022,6,4th Year
+11-22-45,2019100715,"TRINIDAD, LORENA PERALTA",lorena.trinidad27@,2.64,1.98,2.74,2.54,1.69,NO,20,F,Low Income,Highschool Level,High Income,N/A,Outside City,2022,6,4th Year
+11-22-46,2020100251,"ABANIL, VICTOR JAGUALING",victor.abanil@gmail.com,2.09,2.71,1.92,2.3,2.56,NO,30,M,Middle Income,Highschool Level,Low Income,College Graduate,Outside City,2022,6,4th Year
+11-22-47,2016104708,"NILLAS, JEROME FLORES",jerome.nillas@hotmail.com,2.72,2.45,2.38,2.4,,NO,20,M,low-income,Elementary Graduate,MIDDLE INCOME,High School Graduate,Within City,2022,6,5th Year
+11-22-48,2015102785,"UMALI, ANDRE JOHANN RAMIREZ",andre.umali@gmail.com,1.98,2.35,2.12,2.17,2.3,NO,27,M,Low Income,College Graduate,Low Income,College Graduate,Within City,2022,6,4th Year
+11-22-49,2018109626,"MAGNO, ANGELA JIMENEZ",angela.magno79@yahoo.com,1.81,2.56,1.75,2.01,1.8,NO,29,F,Low Income,College Graduate,Low Income,N/A,Outside City,2022,6,4th Year
+11-22-50,2013109935,"FLORES, ROSA MANALO",rosaflores33@hotmail.com,2.5,1.77,1.74,1.93,2.46,NO,22,F,Middle Income,College level,High Income,Highschool Level,Outside City,2022,6,4th Year
+11-22-51,2015101476,"ESTRADA, ELENA RAPLIZA", elena_estrada@gmail.com,1.75,2.48,2.6,2.24,1.84,NO,22,F,below 10k,High School Graduate,10k-30k,College Graduate,Outside City,2022,6,5
+11-22-52,2014102306,"JIMENEZ, THOMAS PAREDES",THOMAS_JIMENEZ60@ICLOUD.COM,2.51,1.96,2.49,2.17,2.07,NO,30,M,Middle Income,High School Graduate,Low Income,College level,Outside City,2022,6,5th Year
+11-22-53,2020100410,"TORRES, STEPHANIE AGUILAR",stephanie_torres@gmail.com,1.58,2.53,2.64,2.19,1.67,NO,20,F,Low Income,N/A,Low Income,College Graduate,Within City,2022,6,5th Year
+11-22-54,2021106866,"PABILLARAN, VICTOR NATIVIDAD",victorpabillaran44@icloud.com,2.11,2.01,2.69,"2,13",2.05,n,23,M,Middle Income,COLLEGE GRADUATE,Low Income,HS Graduate,Outside City,2022,6,5th Year
+11-22-55,2016102001,"GARCIA, RIA COLLEEN AGUILAR",riagarcia@,2.3,2.71,1.56,2.14,2.48,NO,23,female,low,N/A,Mid-Income,N/A,Within City,2022,6,4
+4-23-01,2013104542,"ICASIANO, CARLO ASAS",carloicasiano@hotmail.com,2.5,1.64,2.58,2.13,2.49,NO,29,M,Low Income,N/A,Low Income,College Graduate,Within City,2023,11,5th Year
+4-23-02,2018108408,"CANLAS, NESTOR MERCADAL",nestor.canlas98@gmail.com,2.68,1.55,2.48,2.35,2.07,NO,20,M,Low Income,High School Graduate,Low Income,College Graduate,Outside City,2023,35,5th Year
+4-23-03,2014105277,"TALJA, REYMARK OGUIMAS",reymarktalja34@yahoo.con,2.28,2.23,2.39,2.26,1.87,NO,28,M,Middle Income,College Graduate,Low Income,College Graduate,Within City,2023,35,Yr. 4
+4-23-04,2016106779,"PERALTA, LAURA REYES",laura_peralta@hotmail.com,2.41,1.89,1.89,1.99,,NO,21,F,,NA,Low Income,COLLEGE GRADUATE,Within City,2023,,5th Year
+4-23-05,2021109202,"SYLEE, KRISTINE REYES",kristinesylee65@yahoo.com,1.94,2.33,2.44,2.35,2.71,NO,29,F,Low Income,High School Graduate,Low Income,N/A,Outside City,2023,11,4th Year
+4-23-06,2018109113,"VILLANUEVA, MARY JOY NAVARRO",maryvillanueva@yahoo.com,1.78,2.04,2.2,2.09,2.34,NO,28,F,Low Income,College Graduate,High Income,Elementary Graduate,Within City,2023,35,4th Year
+4-23-07,2017105567,"AMARGA, TRISHA MAE RAMIREZ",trisha_amarga@yahoo.com,1.68,2.32,1.59,1.94,1.61,NO,26,F,Low Income,High School Graduate,Low Income,College Graduate,Within City,2023,11,4th Year
+4-23-08,2013101336,"MAGNO, JASMINE TORRES",jasminemagno64@gmail.com,2.26,2.02,1.77,2.02,1.64,NO,30,F,Middle Income,College Graduate,Low Income,N/A,Outside City,2023,11,4th Year
+4-23-09,2017103460,"MENDOZA, ARISTOTLE GUIBONE",aristotle.mendoza36@outlook.com,1.91,1.51,2.43,1.850,2.38,NO,30,M,Middle Income,College Graduate,Low Income,N/A,Within City,2023,35,5
+4-23-10,2018109433,"PERALTA, PATRICIA PERALTA",patricia.peralta89@icloud.com,2.3,1.86,2.01,2.2,2.68,NO,27,F,Middle Income,0,High Income,CG,Within City,2023,35,5th Year
+4-23-11,2021101288,"TAN, CLARA MERCADAL",claratan45@gmail.com,1.92,1.71,2.14,1.81,2.63,NO,31,F,HIGH INCOME,N/A,mid income,N/A,Outside City,2023,11,5th Year
+4-23-12,2015101234,"AUSTRIA, ELIEZER RAMOS",eliezer.austria@icloud.com,2.44,2.45,2.06,2.44,2.29,NO,29,M,Low Income,Highschool Level,High Income,High School Graduate,Outside City,2023,35,4th Year
+4-23-13,2017109689,"CANLAS, OSCAR JAGUALING",OSCAR.CANLAS@ICLOUD.COM,1.89,2.06,1.57,1.94,N/A,NO,21,M,Middle Income,High School Graduate,Low Income,College level,Within City,2023,35,5th Year
+4-23-14,2016105267,"ABANIL, TANYA BAGAYNA",tanyaabanil@icloud.com,2.06,2.51,2.55,2.52,N/A,NO,30,female,Low Income,High School Graduate,Low Income,High School Graduate,Within City,2023,35,4th Year
+4-23-15,2017106347,"TAN, CARMEN VEGA",carmentan@gmail.com,2.25,2.49,2.31,2.22,N/A,NO,30,F,Low Income,College Graduate,Low Income,Master's Degree,Within City,2023,35,4th Year
+4-23-16,2015105731,"JIMENEZ, MELISSA FERNANDEZ",melissa_jimenez@icloud.com,2.24,2.67,1.89,2.23,2.52,NO,30,F,Middle Income,Master's Degree,High Income,College Graduate,Within City,2023,35,4
+4-23-17,2013105940,"GARCIA, MARY ROSE LEMOSENIRO",mary.garcia56@gmail.com,2.68,2.11,1.78,2.08,N/A,NO,32,F,Low Income,College Graduate,Middle Income,College Graduate,Within City,2023,35,5th Year
+4-23-18,2015109785,"ACAIN, RIKKA MELISSE RAPLIZA",rikkaacain51@icloud.com,2.54,2.46,2.51,2.4,2.01,0,30,F,Middle Income,College level,High Income,College Graduate,Outside City,2023,11,fifth year
+4-23-19,2017107684,"NATIVIDAD, SAMUEL GOMEZ",samuelnatividad@yahoo.com,2.08,1.85,1.98,1.98,2.52,NO,22,M,Middle Income,High School Graduate,Low Income,High School Graduate,Within City,2023,11,5th Year
+4-23-20,2015104469,"ABAD, TANYA NATIVIDAD",tanya.abad@hotmail.com,2.05,2.68,1.78,2.16,1.53,NO,20,F,Low Income,high school graduate,Low Income,n/a,Within City,2023,11,4
+4-23-21,2014105493,"BACONGUIS, CARLO GUIBONE",carlo_baconguis@hotmail.com,2.65,2.09,2.54,2.5,2.27,NO,21,M,Low Income,N/A,Low Income,College Graduate,Outside City,2023,11,4th Year
+4-23-22,2016104934,"GOMEZ, ELJOHN REYES",eljohngomez61@yahoo.com,2.3,2.28,1.58,2.15,2.17,NO,30,M,Low Income,N/A,Low Income,High School Graduate,Outside City,2023,11,5th Year
+4-23-23,2015101402,"FAJARDO, ROSE DAISY JANE PASCUAL",rosefajardo@gmail.com,2.13,2.74,2.19,2.32,2.29,NO,25,F,Low Income,College Graduate,Low Income,Highschool Level,Within City,2023,35,4th Year
+4-23-24,2018108945,"ALPAS, MELISSA NATIVIDAD",melissa.alpas@hotmail.com,2.47,2.08,2.37,2.35,1.58,NO,32,F,High Income,N/A,Low Income,College Graduate,Within City,2023,35,5th Year
+4-23-25,2021106524,"BACONGUIS, LIZA MAGNO",lizabaconguis18@yahoo.com,2.31,1.86,2.58,2.11,1.84,NO,32,F,Low Income,5,Middle Income,CG,Outside City,2023,35,5th Year
+4-23-26,2020108151,"ENRIQUEZ, MARICRIS OGUIMAS",maricris.enriquez4@yahoo.com,2.5,2.41,1.6,,,NO,25,F,Low Income,Elementary Graduate,Low Income,High School Graduate,Outside City,2023,11,5th Year
+4-23-27,2018107325,"MANALO, PATRICK SORIANO",patrick_manalo@hotmail.com,2.75,1.84,2.73,2.57,N/A,n,30,Male,Low Income,College Graduate,Low Income,N/A,WITHIN CITY,2023,11,4th Year
+4-23-28,2020100570,"GOMEZ, REYMARK SUAREZ",reymark_gomez34@yahoo.com,2.31,1.95,2.69,2.18,2.06,NO,25,M,Low Income,College level,Middle Income,High School Graduate,Outside City,2023,35,5
+4-23-29,2016101858,"AMARGA, JEROME TORRES",jerome.amarga95@icloud.com,2.15,2.64,1.65,2.23,1.77,NO,29,M,Low Income,High School Graduate,High Income,N/A,Within City,2023,35,4th Year
+4-23-30,2020101438,"DIZON, KRISTINE PERALTA",kristinedizon75@hotmail.com,1.58,2.18,2.61,2.23,2.66,NO,30,F,Low Income,N/A,Low Income,Master's Degree,Within City,2023,11,4th Year
+4-23-31,2013105912,"JAVIER, LAURA FERNANDEZ",laura.javier@hotmail.com,2.26,1.61,1.89,2.07,2.16,NO,32,F,Low Income,N/A,Middle Income,Highschool Level,Within City,2023,35,5th Year
+4-23-32,2021105644,"JAVIER, ELIEZER DELA CRUZ",eliezerjavier3@yahoo.com,2.23,2.46,1.66,2.12,2.54,NO,28,M,Low Income,2,Low Income,college graduate,outside,2023,35,5th Year
+4-23-33,2017103216,"OCAMPO, ZENNIEL JESSA SORIANO",zennielocampo@yahoo.com,2.17,2.13,1.71,2.14,2.32,NO,31,F,>30000,College Graduate,below 10k,N/A,Within City,2023,11,Yr. 5
+4-23-34,2017103453,"AMPO, STEPHANIE TORRES",stephanie.ampo@hotmail.com,2.61,2.18,2.3,2.3,2.51,NO,26,F,Low Income,N/A,Low Income,High School Graduate,Outside City,2023,35,5th Year
+4-23-35,2015105121,"DIZON, ROWENA SANTOS",rowena.dizon42@gmail.com,1.66,1.96,2.2,"1,89",1.83,NO,21,F,Low Income,College Graduate,High Income,High School Graduate,Within City,2023,35,4th Year
+4-23-36,2018103110,"DAVID, PAUL RAMOS",pauldavid@yahoo.com,2.12,1.89,1.53,1.98,2.71,NO,25,M,Low Income,College level,Low Income,College Graduate,Outside City,2023,35,4th Year
+4-23-37,2014107060,"SORIANO, CRIS MAGNO",cris_soriano@hotmail.com,2.0,1.56,1.56,1.73,1.86,YES,27,M,MIDDLE INCOME,Master's Degree,low income,College Graduate,Within City,2023,11,5th Year
+4-23-38,2019106114,"SORIANO, CARLA MAGNO",carla_soriano@gmail.com,1.68,2.25,2.0,1.84,N/A,NO,32,F,Low Income,College level,Low Income,High School Graduate,Outside City,2023,35,4
+4-23-39,2017109727,"DAVID, TANYA PASCUAL",tanya_david@outlook.com,2.11,2.2,2.09,1.99,1.64,NO,24,F,Middle Income,College Graduate,Middle Income,N/A,Outside City,2023,35,4th Year
+4-23-40,2016100841,"FAJARDO, ALVIE JOIE DELA CRUZ",alvie_fajardo66@hotmail.com,2.4,2.47,1.98,2.38,2.22,NO,31,F,Low Income,Highschool Level,Low Income,N/A,Within City,2023,35,4th Year
+4-23-41,2020101020,"CRUZ, EMMANUEL JR MORALES",emmanuel.cruz90@hotmail.com,1.91,2.33,2.16,2.08,2.64,no,25,M,Low Income,College Graduate,Middle Income,College Graduate,Outside City,2023,35,4th Year
+4-23-42,2016104571,"OCAMPO, MARIA SUAREZ",maria.ocampo@icloud.com,1.86,1.76,2.38,1.95,2.67,NO,24,F,Low Income,High School Graduate,Middle Income,College Graduate,Outside City,2023,35,4th Year
+4-23-43,2015104758,"NACASABOG, GERALD RETERACION",gerald.nacasabog51@outlook.com,2.66,2.32,2.43,2.38,1.84,NO,28,M,Middle Income,College level,Low Income,College level,Within City,2023,11,5th Year
+4-23-44,2021103697,"PABILLARAN, ELJOHN REYES",eljohn.pabillaran@icloud.com,1.91,2.09,2.35,2.01,2.72,NO,22,M,Low Income,College Graduate,High Income,High School Graduate,Within city,2023,35,4th Year
+4-23-45,2013101465,"BACONGUIS, PAUL CHRISTIAN RAPLIZA",paul.baconguis28@gmail.com,2.02,2.55,2.67,2.27,2.48,NO,22,M,High Income,College Graduate,High Income,College Graduate,Within City,2023,35,5th Year
+4-23-46,2014105489,"ICASIANO, LAURA OCAMPO",laura.icasiano92@yahoo.com,2.12,2.67,2.56,2.44,1.64,false,22,F,,College Graduate,Middle Income,N/A,Outside City,2023,35,5th Year
+4-23-47,2016102875,"DAVID, HANNAH BEHAGAN",hannah_david18@yahoo.com,1.61,2.34,1.73,1.79,1.81,NO,23,F,Low Income,Highschool Level,Low Income,College level,Within City,2023,35,5th Year
+4-23-48,2016101017,"PASCUAL, RYAN DICTO",ryanpascual13@icloud.com,2.01,2.13,2.62,2.31,1.65,0,24,M,Low Income,Master's Degree,Low Income,High School Graduate,Outside City,2023,35,5th Year
+4-23-49,2021107714,"RAMOS, ARISTOTLE VEGA",aristotle.ramos@yahoo.com,2.44,2.59,1.6,2.19,1.6,NO,29,M,"PHP 5,000",College Graduate,10k-30k,N/A,In City,2023,11,4th Year
+4-23-50,2021107239,"CRUZ, THOMAS PERALTA",thomascruz56outlook.com,2.23,1.61,2.14,2.09,2.14,NO,27,male,Middle Income,,Middle Income,Highschool Level,Within City,2023,,4th Year
+4-23-51,2013103570,"MAGNO, ARGIE RETERACION",argie_magno26@,2.38,2.18,1.58,2.16,2.09,NO,24,1,Low Income,College Graduate,Middle Income,Master's Degree,Outside City,2023,35,5th Year
+4-23-52,2019107348,"NACASABOG, BIANCA VEGA",bianca.nacasabog93@gmail.com,2.71,2.59,1.67,2.43,2.74,NO,26,F,Low Income,N/A,Middle Income,N/A,Within City,2023,35,5th Year
+4-23-53,2021106948,"RAMOS, MARIA RAMOS",maria_ramos71@icloud.com,1.93,1.84,2.67,2.21,2.51,NO,26,F,Middle Income,College Graduate,High Income,N/A,Within City,2023,11,4th Year
+4-23-54,2020109794,"BAGONGON, AARON SANTOS",aaronbagongon3@outlook.com,2.05,2.17,2.44,2.3,2.74,NO,23,M,Middle Income,Highschool Level,Middle Income,College level,Outside City,2023,11,5th Year
+4-23-55,2015108540,"OCAMPO, VICTOR OGUIMAS",victorocampo80@hotmail.com,1.58,2.69,2.6,2.41,2.03,NO,27,M,Low Income,College level,Low Income,High School Graduate,Outside City,2023,35,5th Year
+7-21-01,2017106167,"GUEVARA, ARISTOTLE GARCIA",aristotle.guevara@gmail.com,1.8,1.78,2.57,1.94,1.57,NO,26,M,"PHP 15,000",N/A,<10000,N/A,Within City,2021,12,4th Year
+7-21-02,2014108775,"CASTILLO, ELJOHN VEDRA",eljohn.castillo34@gmail.com,2.34,2.25,2.59,2.3,2.41,NO,28,M,Low Income,College Graduate,Low Income,Highschool Level,In City,2021,6,5th Year
+7-21-03,2014107846,"SUAREZ, CHARLES PERALTA",charles.suarez@icloud.com,1.76,2.64,2.19,2.28,2.17,NO,25,M,Low Income,College Graduate,Low Income,High School Graduate,Outside City,2021,12,4th Year
+7-21-04,2018105126,"MADRIGAL, IRENE CELLE RAMIREZ",irenemadrigal34@yahoo.com,1.78,1.68,1.83,1.89,2.02,YES,25,0,Low Income,N/A,Middle Income,College level,Outside City,2021,12,5th Year
+7-21-05,2020108037,"MANALO, ALVIE JOIE DICTO",alviemanalo66@outlook.com,1.67,2.18,1.73,1.98,2.7,NO,21,Female,High Income,College Graduate,Middle Income,High School Graduate,Within City,2021,6,4th Year
+7-21-06,2013103583,"GEPULANGO, PEARL SORIANO",pearl.gepulango@yahoo.com,2.3,2.67,2.64,"2,58",N/A,NO,28,F,Middle Income,High School Graduate,Low Income,Elementary Graduate,Outside City,2021,6,4th Year
+7-21-07,2019102937,"FAJARDO, JOSE TADEO",jose_fajardo10@gmail.com,1.8,2.27,1.82,1.92,1.6,NO,27,M,Middle Income,N/A,High Income,College Graduate,Within City,2021,6,5th Year
+7-21-08,2019106179,"ALBISO, MERIAN JIMENEZ",merianalbiso12@gmail.com,1.71,2.12,2.04,2.04,2.57,NO,21,F,Middle Income,N/A,High Income,College Graduate,Outside City,2021,12,4
+7-21-09,2014104593,"MORALES, MIGUEL BETINOL",miguelmorales@outlook.com,2.7,2.23,2.44,"2,52",1.6,NO,22,M,Middle Income,5,Middle Income,5,Outside City,2021,12,4th Year
+7-21-10,2015101284,"PABILLARAN, MERIAN FLORES",merian.pabillaran@outlook.com,1.79,1.6,2.26,1.92,2.71,NO,30,F,Low Income,High School Graduate,High Income,High School Graduate,Outside City,2021,12,5th Year
+7-21-11,2019101404,"RAMOS, MARICRIS PERALTA",maricrisramos54@hotmail.com,1.59,1.83,1.97,1.88,1.99,NO,21,F,LowIncome,High School Graduate,LowIncome,Elementary Graduate,within city,2021,6,4th Year
+7-21-12,2020109125,"AMPO, JERICA MAE PADLA",jerica.ampo@gmail.com,1.94,1.62,2.25,1.88,1.86,0,21,F,Middle Income,Master's Degree,Middle Income,N/A,Within City,2021,12,4th Year
+7-21-13,2017104933,"ABAD, RACHEL JAGUALING",rachel.abad@yahoo.com,1.71,1.84,1.87,1.89,2.68,NO,27,F,Middle Income,N/A,Low Income,Highschool Level,outside,2021,12,5th Year
+7-21-14,2019105399,"TOLENTINO, GRACE LACSON",grace.tolentino40@hotmail.com,2.53,2.31,2.24,2.3,2.37,NO,27,F,Low Income,Master's Degree,High Income,Elementary Graduate,Outside City,2021,6,5th Year
+7-21-15,2017106437,"MADRIGAL, MARY JOY PESIDAS",mary.madrigal38@hotmail.com,2.24,2.18,2.35,2.27,2.08,0,31,F,Low Income,College Graduate,Middle Income,N/A,Outside City,2021,12,4th Year
+7-21-16,2017103965,"ABANIL, KRISTINE PERALTA",kristineabanil23@outlook.com,2.03,1.97,2.06,2.05,2.17,NO,31,F,Low Income,Master's Degree,Low Income,College Graduate,Within City,2021,6,4th Year
+7-21-17,2018102725,"PERALTA, MARK ANTHONY MAGNO",mark.peralta@,1.91,2.5,1.63,1.89,2.43,NO,31,M,Middle Income,High School Graduate,Low Income,College Graduate,Within City,2021,12,5th Year
+4-23-06,2018109113,"VILLANUEVA, MARY JOY NAVARRO",maryvillanueva@yahoo.com,1.78,2.04,2.2,2.09,2.34,NO,28,F,Low Income,College Graduate,High Income,Elementary Graduate,Within City,2023,35,4th Year
+7-21-18,2020101712,"NACASABOG, FLORA NANOL",flora.nacasabog@hotmail.com,2.54,2.41,1.94,2.25,2.15,NO,25,F,Low Income,College Graduate,Low Income,Highschool Level,Outside City,2021,6,5th Year
+7-21-19,2014100370,"RAYPON, MELISSA VEGA",melissa_raypon32@gmail.com,2.5,2.66,2.43,2.53,1.91,NO,26,F,High Income,Highschool Graduate,Low Income,N/a,Outside City,2021,12,4th Year
+7-21-20,2016107365,"ABREGANA, BIANCA PERALTA",biancaabregana84@icloud.com,1.77,1.85,2.38,2.09,2.5,NO,28,F,Low Income,High School Graduate,Low Income,Elementary Graduate,Outside City,2021,12,4th Year
+7-21-21,2019109617,"MANALO, OSCAR PAREDES",oscarmanalo51@yahoo.com,2.07,1.72,2.34,2.13,2.24,0,30,M,Low Income,2,Low Income,-,Within City,2021,12,4th Year
+7-21-22,2015109417,"AMARGA, HANNAH TORRES",hannah.amarga@yahoo.com,2.29,2.37,2.31,2.47,2.11,NO,22,F,Low Income,College level,Middle Income,College Graduate,Within City,2021,12,4th Year
+7-21-23,2019109200,"ANGELES, FLORA REYES",flora_angelesyahoo.com,2.39,2.05,1.71,2.070,1.78,NO,20,F,Low Income,N/A,Low Income,High School Graduate,outside city,2021,6,4
+7-21-24,2017108898,"BAGONGON, ALMA MAGNO",alma.bagongon10@icloud.com,2.4,2.18,2.74,"2,32",2.44,NO,24,F,Middle Income,Elementary Graduate,Low Income,College Graduate,Within City,2021,12,5th Year
+7-21-25,2014103882,"QUINTO, ROGELIO JIMENEZ",rogelio.quinto@icloud.com,1.94,2.39,2.29,2.11,1.76,NO,23,M,Middle Income,hs grad,Middle Income,College level,Within City,2021,12,4th Year
+7-21-26,2017104740,"PABILLARAN, TANYA FERNANDEZ",tanyapabillaran86@hotmail.com,2.7,2.48,2.65,2.76,1.66,NO,22,F,Low Income,College Graduate,Middle Income,College Graduate,Outside City,2021,12,4th Year
+7-21-27,2017106786,"LEMU, JASMINE DELA CRUZ",jasmine.lemu89@gmail.com,2.49,2.46,2.0,2.39,2.6,NO,27,F,High Income,N/A,Low Income,College Graduate,Within City,2021,12,4th Year
+7-21-28,2018101037,"MAGNO, HERA DEANNE LACSON",hera_magno@outlook.com,1.76,1.84,2.54,2.0,2.21,NO,25,F,Middle Income,N/A,Middle Income,College level,Outside City,2021,6,5th Year
+7-21-29,2015107230,"MAGNO, TRISHA MAE PESIDAS",trisha_magno1@outlook.com,2.74,2.64,2.6,2.6,2.6,NO,21,F,Middle Income,High School Graduate,Low Income,College Graduate,Within City,2021,6,4th Year
+7-21-30,2017103836,"NILLAS, MELISSA PERALTA",melissa_nillas71@yahoo.com,1.62,1.77,1.6,1.69,2.06,YES,25,F,Middle Income,High School Graduate,High Income,N/A,Within City,2021,6,5th Year
+7-21-31,2014101690,"OCAMPO, PEARL FERNANDEZ",pearl.ocampo@outlook.com,1.98,2.52,2.59,2.41,1.59,NO,29,F,Low Income,High School Graduate,Middle Income,College Graduate,Within City,2021,12,5th Year
+7-21-32,2020103559,"VILLASTIQUE, JOSE MAGNO",jose.villastique1@icloud.com,1.65,2.41,1.94,1.98,1.81,NO,23,M,Middle Income,College level,Middle Income,College Graduate,Within City,2021,12,4th Year
+7-21-33,2021103090,"CASANE, ROSA UMALI",rosa.casane61@hotmail.com,2.62,2.69,2.12,2.36,2.24,NO,28,F,Middle Income,High School Graduate,Low Income,Highschool Level,Outside City,2021,12,4th Year
+7-21-34,2015107717,"QUINTO, MICHAEL JOHN JAGUALING",michaelquinto@hotmail.com,1.52,1.77,2.65,2.11,1.86,NO,31,M,Low Income,College Graduate,Low Income,N/A,Within City,2021,12,5th Year
+7-21-35,2014108377,"ABANIL, ROGELIO PASCUAL",rogelio.abanil12@gmail.com,1.91,2.23,2.45,2.24,1.89,NO,26,M,Middle Income,N/A,Middle Income,N/A,Outside City,2021,6,5th Year
+7-21-36,2013105067,"ALBISO, JUAN PERALTA",juan.albiso@icloud.com,1.67,1.51,2.12,1.72,2.53,YES,25,M,Low Income,Elementary Graduate,Middle Income,College Graduate,Within City,2021,12,5th Year
+7-21-37,2017108582,"NATIVIDAD, CRIS DELA CRUZ",cris.natividad39@,1.6,2.07,1.95,1.87,1.96,NO,21,M,10000-30000,N/A,20000,College Graduate,Within City,2021,6,5th Year
+7-21-38,2013104006,"SORIANO, JOSHUA VEDRA",joshua.soriano@hotmail.com,2.65,1.72,2.7,2.22,2.39,NO,30,M,Low Income,High School Graduate,Low Income,College Graduate,Outside City,2021,6,5th Year
+7-21-39,2014108225,"TORRES, MIGUEL JAVIER",miguel_torres98@icloud.com,2.14,1.56,2.0,2.01,2.47,NO,24,M,Low Income,N/A,Middle Income,N/A,Outside City,2021,6,4th Year
+7-21-40,2020103201,"ABREGANA, MARK REYES",mark.abregana[at]gmail.com,1.53,2.18,2.29,2.06,N/A,NO,25,M,Low Income,College Graduate,Middle Income,College Graduate,Within City,2021,6,4th Year
+7-21-41,2016106878,"ABAD, MERIAN PERALTA",merianabad66@hotmail.com,1.85,1.55,1.79,1.83,2.62,NO,31,0,Low Income,N/A,Low Income,College Graduate,Within City,2021,6,4th Year
+7-21-42,2015103879,"MORALES, LIZA JAVIER",liza.morales@hotmail.com,1.99,2.54,1.91,2.13,2.68,NO,22,F,Middle Income,N/A,Middle Income,N/A,Outside City,2021,12,4th Year
+7-21-43,2021105870,"PASCUAL, NESTOR RAMOS",nestorpascual@gmail.com,1.83,1.65,1.7,1.78,2.37,YES,25,M,Low Income,Master's Degree,Middle Income,High School Graduate,Within City,2021,12,5th Year
+7-21-44,2015100509,"LACSON, JASMINE ESTRADA",jasmine.lacson@outlook.com,2.19,1.62,1.63,1.9,1.58,NO,23,f,Low Income,High School Graduate,Middle Income,College level,Within City,2021,12,4th Year
+7-21-45,2014100357,"DELOS REYES, RAMON JAVIER",ramon.delosreyes49@hotmail.com,1.66,2.63,2.54,2.23,N/A,NO,27,Male,Low Income,High School Graduate,High Income,College Graduate,Outside City,2021,6,4th Year
+7-21-46,2019102831,"AMARGA, HERA DEANNE OGUIMAS",hera.amarga@hotmail.com,1.85,2.6,1.54,2.03,1.87,NO,26,F,Middle Income,N/A,Low Income,High School Graduate,Outside City,2021,6,4th Year
+11-22-22,2019105344,"BAUTISTA, MARICEL MORALES",maricelbautista74@outlook.com,1.66,2.03,2.68,2.18,2.27,NO,24,F,Low Income,Highschool Level,Middle Income,N/A,Outside City,2022,6,4th Year
+11-22-20,2017105753,"GUEVARA, JANINE LEMOSENIRO",janine_guevara22@yahoo.com,2.67,1.64,2.71,2.24,1.83,NO,21,F,Middle Income,College Graduate,Low Income,High School Graduate,Within City,2022,6,5th Year
+7-21-47,2021104082,"MANALO, DANIEL GARCIA",danielmanalo32@outlook.com,2.18,2.11,2.64,2.31,1.72,NO,25,M,Middle Income,College Graduate,Low Income,Elementary Graduate,Outside City,2021,12,4th Year
+7-21-48,2016102615,"GOMEZ, AARON OGUIMAS",aaron.gomez@hotmail.com,2.17,2.49,2.42,2.44,2.22,NO,32,M,Low Income,Master's Degree,High Income,N/A,Within City,2021,12,4
+7-21-49,2018109692,"MANALO, KENNETH NAVARRO",kennethmanalo@icloud.com,2.2,2.2,1.74,2.19,2.12,NO,24,M,Low Income,N/A,Low Income,College level,Within City,2021,12,4th Year
+7-21-50,2016102137,"ALPAS, ANALIZA JAVIER",,2.56,1.9,1.53,2.02,,NO,28,F,Middle Income,High School Graduate,High Income,College Graduate,Outside City,2021,6,4th Year
+3-24-01,2018102235,"TOLENTINO, PATRICK UMALI",patricktolentino@,2.3,2.11,1.9,2.17,2.61,NO,29,M,Middle Income,College level,Low Income,N/A,Outside City,2024,18,4th Year
+3-24-02,2015102911,"NATIVIDAD, CHARLES SANTOS",charlesnatividad84@icloud.com,2.56,2.46,2.21,2.31,2.51,NO,29,M,Low Income,College Graduate,Middle Income,N/A,Within City,2024,6,4th Year
+3-24-03,2018102750,"LIM, KENNETH GOMEZ",kenneth_lim10@outlook.com,1.51,1.76,2.37,1.84,2.4,YES,27,M,Middle Income,5,High Income,3,Outside City,2024,12,5th Year
+3-24-04,2014107855,"DELA CRUZ, PAOLO JAGUALING",paolo.delacruz@gmail.com,2.5,1.54,1.53,1.79,1.93,NO,22,M,Middle Income,College Graduate,Low Income,N/A,Outside City,2024,18,4th Year
+3-24-05,2015109950,"CASANE, ALVIE JOIE EBABACOL",alviecasane19@outlook.com,1.91,2.72,2.01,2.23,2.18,NO,30,F,Low Income,None,Low Income,4,outside,2024,6,4th Year
+3-24-06,2013107005,"RAMIREZ, GERALD GARCIA",geraldramirez96@hotmail.com,1.75,1.53,1.71,1.6,N/A,NO,24,M,Middle Income,College Graduate,Low Income,Elementary Graduate,Out of City,2024,6,5th Year
+3-24-07,2019106052,"BAGONGON, NESTOR ASAS",nestorbagongon@icloud.com,2.05,1.83,2.55,2.16,2.37,NO,21,M,Low Income,High School Graduate,Low Income,Master's Degree,Within City,2024,18,5th Year
+3-24-08,2019108561,"TRINIDAD, ALMA NAVARRO",alma.trinidad63@gmail.com,2.6,2.1,1.6,2.22,2.13,NO,28,F,Middle Income,College level,Middle Income,N/A,Outside City,2024,6,4th Year
+3-24-09,2015103471,"BAGONGON, CARLO FLORES",carlobagongon28@outlook.com,1.6,2.35,1.75,2.00,2.24,NO,31,M,High Income,High School Graduate,Low Income,High School Graduate,Outside City,2024,12,4th Year
+3-24-10,2013109626,"ESTRADA, MARY JOY TADEO",MARYESTRADA67@ICLOUD.COM,1.69,2.23,2.45,2.26,2.2,NO,21,F,Middle Income,College Graduate,Middle Income,College Graduate,Outside City,2024,12,5th Year
+3-24-11,2020100613,"PERALTA, EDWIN TADEO",edwin_peralta@hotmail.com,2.27,2.35,2.0,2.18,2.36,NO,20,M,Middle Income,College Graduate,High Income,N/A,Outside City,2024,12,4th Year
+3-24-12,2020101609,"OCAMPO, CARLO ESTRADA",carlo.ocampo@icloud.com,2.05,2.53,1.84,2.12,1.73,NO,23,M,High Income,High School Graduate,Low Income,High School Graduate,Outside City,2024,6,5th Year
+3-24-13,2015101075,"CANLAS, ANALIZA SANTOS",analiza.canlas38@gmail.com,1.67,2.56,2.6,2.14,2.54,NO,20,F,Low Income,College Graduate,Low Income,College Graduate,Outside City,2024,12,5th Year
+3-24-14,2021106503,"AMPO, THOMAS RECINTO",thomasampo58@icloud.com,1.97,2.24,1.72,2.09,1.94,NO,22,M,Middle Income,College Graduate,Low Income,N/A,Within City,2024,12,Year 4
+3-24-15,2016103626,"CRUZ, THOMAS OGUIMAS",thomas.cruz@hotmail.com,2.31,2.14,2.58,2.48,2.09,NO,22,M,"PHP 15,000",N/A,10k-30k,Elementary Graduate,Outside City,2024,18,4th Year
+3-24-16,2017106943,"BERNARDO, FAITH ASAS",faith.bernardo19@outlook.com,1.77,1.88,2.15,1.97,1.51,NO,25,F,Middle Income,1,Middle Income,5,Outside City,2024,6,4th Year
+3-24-17,2017105327,"OCAMPO, LIZA PESIDAS",liza.ocampo78@gmail.com,1.69,2.46,2.62,2.35,2.25,NO,30,F,Low Income,N/A,Low Income,High School Graduate,Outside City,2024,12,5th Year
+3-24-18,2019106361,"NATIVIDAD, JOSEPH LACSON",josephnatividad@icloud.com,1.74,2.41,1.78,1.99,2.63,NO,28,M,Low Income,College Graduate,Low Income,College level,Outside City,2024,6,5th Year
+3-24-19,2017109159,"LIM, THOMAS AGUILAR",thomas_lim@yahoo.com,1.61,1.94,2.43,1.94,1.91,NO,24,Male,Low Income,N/A,Low Income,College level,Within City,2024,12,5th Year
+3-24-20,2021101963,"OCAMPO, VERA REYES",vera.ocampo63@icloud.com,1.57,2.57,1.67,1.85,2.21,NO,27,f,Low Income,N/A,Middle Income,N/A,Outside City,2024,18,5th Year
+3-24-21,2018100950,"VILLANUEVA, NESTOR CAYETUNA",nestor_villanueva@icloud.com,2.45,1.71,2.46,2.2,1.61,NO,29,M,low-income,High School Graduate,Low income,High School Graduate,Within City,2024,6,5th Year
+3-24-22,2018100230,"FAJARDO, FELICIA PESIDAS",felicia_fajardo49@gmail.com,1.52,1.51,2.42,1.73,1.89,YES,28,F,Middle Income,Coll. Graduate,Low Income,Elementary Graduate,Outside City,2024,12,4th Year
+3-24-23,2021105535,"VILLASTIQUE, JANINE LEMOSENIRO",janine_villastique1@outlook.com,2.75,2.11,2.44,2.33,,NO,20,F,,N/A,Middle Income,,Within City,2024,6,4th Year
+3-24-24,2013106147,"GUEVARA, CARMEN SORIANO",carmen_guevara@gmail.com,1.56,2.74,2.33,2.26,N/A,NO,31,F,Low Income,N/A,Low Income,Elementary Graduate,Within City,2024,6,4th Year
+3-24-25,2013104933,"PABILLARAN, KRISTINE HERNANDEZ",kristinepabillaran38@outlook.com,2.15,2.28,2.38,2.25,2.14,NO,29,Female,low,N/A,low-income,N/A,Within City,2024,12,5th Year
+3-24-26,2016105864,"ACAIN, ROSA HIPONA",rosa.acain51@hotmail.com,2.19,2.64,2.36,2.39,1.52,NO,21,F,high income,COLLEGE GRADUATE,mid income,none,Within City,2024,18,5th Year
+3-24-27,2014104192,"BAUTISTA, RYAN ASAS",ryan.bautista47@outlook.com,2.08,1.62,1.72,1.67,2.5,YES,31,M,Low Income,College Graduate,Middle Income,,Within City,2024,18,4th Year
+3-24-28,2018105857,"CASTILLO, STEPHANIE BERNARDO",stephanie.castillo@gmail.com,2.42,1.97,1.93,1.99,2.07,NO,31,F,Middle Income,College level,Middle Income,college graduate,Within City,2024,6,4th Year
+3-24-29,2013102611,"QUINTO, VICTOR GARCIA",victorquinto@yahoo.com,2.5,2.35,1.73,2.16,1.54,NO,30,M,Middle Income,College Graduate,Middle Income,High School Graduate,Outside City,2024,6,4th Year
+3-24-30,2020100753,"MORALES, CRIS ARIAS",cris_morales56@yahoo.com,2.38,2.35,2.46,2.42,2.72,NO,30,M,Middle Income,College Grad,Low Income,College level,Outside City,2024,18,4th Year
+3-24-31,2020105664,"LACSON, RIKKA MELISSE SORIANO",rikka_lacson@icloud.com,1.57,2.3,1.7,1.96,2.59,YES,27,F,Low Income,Elementary Graduate,Low Income,High School Graduate,Outside City,2024,12,5th Year
+3-24-32,2014107521,"NATIVIDAD, MARICRIS GOMEZ",maricrisnatividad@gmail.com,1.61,2.12,1.9,2.02,1.52,NO,26,F,Low Income,N/A,Middle Income,N/A,Outside City,2024,18,4th Year
+3-24-33,2020105584,"TORRES, MERIAN PAREDES",merian.torres94@icloud.com,2.07,2.2,2.27,2.17,2.39,NO,21,F,Low Income,N/A,Middle Income,High School Graduate,Outside City,2024,18,5th Year
+3-24-34,2014100750,"VILLASTIQUE, PAUL LACSON",paulvillastiqueoutlook.com,2.4,2.4,1.63,2.18,2.66,NO,26,M,Low Income,N/A,Middle Income,Highschool Level,Outside City,2024,6,4th Year
+3-24-35,2014107381,"QUINTO, KRISTINE BAUTISTA",kristine_quinto@yahoo.com,1.67,2.12,2.16,1.85,2.55,NO,28,F,Middle Income,College Graduate,High Income,N/A,Within City,2024,6,5th Year
+3-24-36,2018108259,"SUAREZ, FLORA JIMENEZ",flora_suarez54@outlook.com,2.45,1.84,2.7,2.47,1.67,NO,26,0,Middle Income,High School Graduate,Middle Income,College Graduate,Outside City,2024,18,5th Year
+3-24-37,2021103560,"BAUTISTA, LUIS VEGA",luis_bautista33@icloud.com,1.93,2.34,2.73,2.38,2.13,NO,31,M,middle income,College Graduate,MIDDLE INCOME,College level,OUTSIDE CITY,2024,18,4th Year
+3-24-38,2021104684,"ALBISO, MARICRIS OCAMPO",maricrisalbiso31@icloud.com,1.63,1.98,1.57,1.59,2.48,NO,30,F,Low Income,College Graduate,Middle Income,Elementary Graduate,Within City,2024,12,4th Year
+3-24-39,2014109205,"LACSON, JEROME VEDRA",jeromelacson86@gmail.com,1.8,2.48,2.5,2.2,2.66,NO,26,M,Low Income,Coll. Graduate,Middle Income,MASTER'S DEGREE,Within City,2024,6,5th Year
+3-24-40,2016107259,"AGUILAR, RICHARD MAGNO",richard.aguilar@gmail.com,2.24,2.42,1.75,2.2,2.06,NO,30,M,Low Income,College Graduate,High Income,N/A,Within City,2024,12,4th Year
+3-24-41,2017102131,"MENDOZA, JOSEPH ARIAS",joseph.mendoza65@hotmail.com,1.91,2.39,1.69,,1.56,NO,,M,Middle Income,College Graduate,Low Income,College level,Within City,2024,18,4th Year
+3-24-42,2016103012,"CANLAS, FERDINAND DICTO",ferdinand.canlas58@icloud.com,2.02,2.17,1.61,1.85,1.91,NO,23,1,high,High School Graduate,MIDDLE INCOME,College level,Within City,2024,6,4th Year
+3-24-43,2020103937,"NAVARRO, ARGIE VEDRA",argie_navarro@yahoo.com,2.64,2.68,1.98,2.45,2.64,NO,32,M,Low Income,High School Graduate,Middle Income,N/A,Within City,2024,12,4th Year
+3-24-44,2014102742,"GINGONE, RICHARD CAYETUNA",richard.gingone23@hotmail.com,2.34,2.47,2.58,2.44,2.17,NO,31,M,Middle Income,High School Graduate,Middle Income,College Graduate,Within City,2024,18,4th Year
+3-24-45,2013107523,"NILLAS, IRENE CELLE JAGUALING",irene.nillas@outlook.com,1.57,2.49,2.2,2.11,1.82,0,26,F,Low Income,Highschool Level,Low Income,High School Graduate,Within City,2024,18,4th Year
+3-24-46,2014109594,"LEMU, CHARLES RETERACION",charles_lemu@gmail.com,2.66,1.63,2.48,2.2,N/A,NO,32,M,High Income,College Graduate,Low Income,N/A,Within City,2024,18,5th Year
+3-24-47,2019108941,"ABAD, ANGELA MACAS",angelaabad53@icloud.com,2.35,2.64,2.49,2.56,2.69,NO,28,F,Middle Income,N/A,Low Income,College level,Outside City,2024,18,5th Year
+3-24-48,2014104992,"DIZON, JEROME CAYETUNA",jeromedizon@icloud.com,2.02,2.31,2.14,2.05,2.54,NO,23,M,Low Income,,Middle Income,N/A,Outside City,2024,18,5th Year
+3-24-49,2017101103,"REYES, JERICA MAE SALAZAR",jerica_reyes@icloud.com,2.23,2.69,1.95,2.34,1.86,false,21,Female,"PHP 50,000",High School Graduate,≤9999,College level,Outside City,2024,18,4th Year
+3-24-50,2018105182,"ABREGANA, ALVIE JOIE BEHAGAN",alvie_abregana74@yahoo.com,1.81,1.78,2.42,1.98,1.67,N,27,F,Low Income,Highschool Level,Low Income,College level,Within City,2024,18,5th Year
+9-20-01,2017102293,"LEMU, CRIS SALAZAR",crislemu@gmail.com,1.59,1.52,2.13,1.61,2.01,YES,20,M,Middle Income,Master's Degree,Low Income,High School Graduate,Within City,2020,12,4th Year
+9-20-02,2017102193,"DAVID, TANYA PADLA",tanya_david32@icloud.com,2.0,2.13,2.33,2.26,2.27,NO,22,F,Middle Income,N/A,Low Income,College level,Within City,2020,12,4th Year
+9-20-03,2013103585,"GINGONE, MARIA ASAS",,1.96,1.55,1.76,1.88,,NO,20,F,Low Income,N/A,Middle Income,Master's Degree,Outside City,2020,,5
+9-20-04,2015106171,"QUINTO, PEARL AGUILAR",pearl.quinto@icloud.con,2.62,1.6,1.81,2.15,2.01,NO,25,F,Low Income,College level,Low Income,High School Graduate,Within City,2020,,4th Year
+3-24-37,2021103560,"BAUTISTA, LUIS VEGA",luis_bautista33@icloud.com,1.93,2.34,2.73,2.38,2.13,NO,31,M,Middle Income,College Graduate,Middle Income,College level,Outside City,2024,18,4th Year
+2-19-25,2020105330,"ALPAS, NESTOR MACAS",nestor_alpas6@yahoo.com,2.69,1.59,1.64,2.07,1.97,NO,27,M,Middle Income,N/A,Low Income,N/A,Within City,2019,6,5th Year
+9-20-05,2014108430,"ABANIL, HERA DEANNE RAPLIZA",heraabanil98@hotmail.com,1.7,2.25,2.52,2.2,1.91,NO,21,F,Low Income,N/A,Low Income,N/A,Outside City,2020,6,5th Year
+9-20-06,2015109396,"DAVID, CARLO HIPONA",carlo_david@icloud.com,2.61,1.68,1.71,2.13,2.01,0,29,M,MIDDLE INCOME,College Graduate,Mid-Income,College Graduate,Within City,2020,6,5th Year
+9-20-07,2020107891,"SALAZAR, RICO MANALO",ricosalazar60@yahoo.com,1.68,2.23,2.46,2.16,1.71,NO,30,M,,College level,Low Income,N/A,Outside City,2020,6,5
+9-20-08,2016108564,"SUAREZ, RIKKA MELISSE EBABACOL",rikka.suarez@yahoo.com,1.72,2.63,2.25,2.31,2.44,NO,21,F,Low Income,College level,Low Income,College Graduate,Outside City,2020,12,5th Year
+9-20-09,2013108680,"SANTIAGO, MARIA UMALI",mariasantiago@icloud.com,2.46,1.94,2.51,2.43,2.22,NO,26,0,5000-9999,N/A,≤9999,College Graduate,Outside City,2020,12,5th Year
+9-20-10,2013100116,"ABREGANA, EMMANUEL JR VEDRA",emmanuel.abregana@gmail.com,2.32,2.36,1.89,2.15,2.31,NO,24,M,low-income,4,Low income,4,Outside City,2020,6,5th Year
+9-20-11,2021107904,"LACSON, SAMUEL MORALES",samuel.lacson@outlook.com,2.1,2.74,2.22,2.44,1.67,NO,30,M,Low Income,College Graduate,Low Income,College Graduate,Within City,2020,6,4th Year
+9-20-12,2018109020,"VEGA, PAOLO DELA CRUZ",paolo.vega81@hotmail.com,1.51,1.61,1.68,1.73,1.58,YES,21,M,mid income,College Graduate,mid income,High School Graduate,Outside City,2020,6,4th Year
+9-20-13,2015108099,"REYES, TRISHA MAE PAREDES",,2.32,2.5,1.86,,2.14,NO,23,F,,High School Graduate,Middle Income,College Graduate,Within City,2020,6,5th Year
+9-20-14,2019105785,"QUINTO, DIANA PESIDAS",diana.quinto@icloud.com,2.15,2.42,1.59,1.93,2.54,NO,25,F,LowIncome,N/A,Mid-Income,Master's Degree,Outside City,2020,12,4th Year
+9-20-15,2017102867,"RAYPON, TANYA MORALES",tanya_raypon@gmail.com,1.59,1.87,2.68,2.14,2.6,NO,32,F,Middle Income,Master's Degree,Middle Income,College level,Within City,2020,12,4th Year
+9-20-16,2020107548,"SABIO, JOSHUA ASAS",joshuasabio39@outlook.com,1.58,2.29,2.74,2.26,1.89,NO,25,M,Low Income,5,Low Income,-,Within City,2020,12,4th Year
+9-20-17,2018101245,"MORALES, JOSHUA RETERACION",joshua_morales@icloud.com,1.77,2.22,1.73,1.980,1.74,NO,23,M,Middle Income,None,Middle Income,None,Within City,2020,12,5th Year
+9-20-18,2014101964,"AUSTRIA, THOMAS SORIANO",thomasaustria@gmail.com,1.51,2.57,2.7,2.36,1.89,NO,29,M,Middle Income,Master's Degree,Low Income,College Graduate,Outside City,2020,12,4
+9-20-19,2015100887,"ICASIANO, NORA HIPONA",nora_icasiano91@gmail.com,2.13,1.99,2.36,2.06,2.37,NO,27,F,Low Income,College Graduate,Low Income,High School Graduate,Within City,2020,12,4th Year
+9-20-20,2017103066,"CASTILLO, ANA GARCIA",ana.castillo25@icloud.com,2.7,1.93,1.73,2.1,2.44,NO,25,F,MIDDLE INCOME,N/A,low income,N/A,Within City,2020,6,5th Year
+9-20-21,2016109098,"REYES, BIANCA TADEO",bianca.reyes@icloud.com,2.5,2.42,2.09,2.19,1.67,NO,30,F,Low Income,College Graduate,Middle Income,Highschool Level,Within City,2020,12,4th Year
+9-20-22,2015100983,"TRINIDAD, CRIS NATIVIDAD",cris_trinidad30@gmail.com,2.29,2.06,1.92,2.05,2.66,NO,24,M,Low Income,High School Graduate,Low Income,College Graduate,Within City,2020,6,4th Year
+9-20-23,2017105818,"DAVID, JANINE TORRES",janinedavid44@outlook.com,2.47,2.06,1.6,2.08,2.7,0,22,0,Middle Income,3,High Income,4,Outside City,2020,6,4th Year
+7-21-17,2018102725,"PERALTA, MARK ANTHONY MAGNO",mark.peralta@gmail.com,1.91,2.5,1.63,"1,89",2.43,NO,31,M,mid income,High School Graduate,LOW INCOME,College Graduate,Within City,2021,12,5th Year
+9-20-24,2018103739,"BAUTISTA, ELENA PERALTA",elenabautista@gmail.com,1.83,2.31,1.84,1.98,1.95,NO,27,F,Low Income,N/A,Low Income,College Graduate,Outside City,2020,6,4th Year
+9-20-25,2019101687,"TRINIDAD, REYMARK MORALES",reymark_trinidad@yahoo.com,1.57,2.46,2.15,2.21,2.27,NO,21,M,10k-30k,Highschool Level,20000,N/A,Outside City,2020,12,4th Year
+9-20-26,2015108630,"BACONGUIS, MICHAEL JOHN HERNANDEZ",michael_baconguis26@yahoo.com,1.95,2.64,2.58,2.38,2.67,NO,28,M,Low Income,College Graduate,High Income,N/A,Outside City,2020,12,4th Year
+9-20-27,2021105073,"ICASIANO, NORA MERCADAL",nora.icasiano@outlook.com,2.51,2.05,1.96,2.1,1.5,NO,32,F,mid income,High School Graduate,low-income,N/A,Outside City,2020,12,4th Year
+9-20-28,2019104799,"ABREGANA, FERDINAND MORALES",ferdinand_abregana14@hotmail.com,1.97,2.01,2.2,2.03,2.42,NO,26,Male,Middle Income,N/A,Low Income,College level,Outside City,2020,12,5th Year
+9-20-29,2021104404,"GINGONE, ZYRA JEAN RAPLIZA",zyra.gingone29[at]icloud.com,1.67,1.64,2.07,1.78,2.11,NO,22,F,Low Income,N/A,Low Income,N/A,Outside City,2020,6,4th Year
+9-20-30,2013103814,"ALBISO, MARK TORRES",markalbiso@icloud.com,1.77,2.03,2.48,2.09,2.37,NO,20,M,Low Income,Master's Degree,Middle Income,N/A,Outside City,2020,6,4th Year
+9-20-31,2015103148,"ALBISO, BIANCA NANOL",bianca.albiso@hotmail.com,2.72,2.39,1.98,2.51,2.74,NO,23,F,Low Income,High School Graduate,Middle Income,Master's Degree,Outside City,2020,12,4th Year
+9-20-32,2017105293,"BAGONGON, RICHARD ESTRADA",richard.bagongon@gmail.com,2.67,2.15,1.82,2.25,2.61,NO,30,M,Low Income,College level,Low Income,Highschool Level,Within City,2020,12,4th Year
+9-20-33,2019103982,"PAREDES, ARGIE UMALI",argie.paredes51@outlook.com,2.36,2.36,1.69,2.22,2.12,NO,30,M,Middle Income,Master's Degree,High Income,College level,Within City,2020,12,5th Year
+9-20-34,2021101759,"FLORES, PAUL BEHAGAN",paulflores@yahoo.com,2.73,2.49,2.45,2.65,1.74,NO,31,M,Low Income,Elementary Graduate,Middle Income,N/A,Outside City,2020,12,5th Year
+9-20-35,2020103109,"DIZON, PAUL CHRISTIAN BEHAGAN",paul_dizon@hotmail.com,2.42,1.84,2.54,2.39,1.59,NO,22,M,LOW INCOME,High School Graduate,Middle income,High School Graduate,Outside City,2020,6,5th Year
+9-20-36,2018103912,"GINGONE, ROWENA HERNANDEZ",rowenagingone@outlook.com,2.71,2.52,1.74,2.38,1.69,NO,24,F,Low Income,N/A,Middle Income,High School Graduate,Within City,2020,6,4th Year
+9-20-37,2015102926,"RAYPON, RAMON TORRES",ramonraypon93@outlook.com,1.74,1.54,2.3,1.83,2.28,NO,20,M,Low Income,N/A,Middle Income,College Graduate,Within City,2020,12,5th Year
+9-20-38,2014107668,"LACSON, SAMUEL ESTRADA",samuel_lacson@gmail.com,2.67,2.02,1.96,2.28,1.83,NO,20,M,Middle Income,N/A,Middle Income,N/A,Within City,2020,6,4th Year
+9-20-39,2021106313,"FAJARDO, RAMON HERNANDEZ",ramon.fajardo11@gmail.com,1.81,2.28,1.72,2.01,1.63,NO,30,M,Middle Income,College Graduate,Middle Income,High School Graduate,Within City,2020,6,5th Year
+9-20-40,2021106579,"ACAIN, KRISTINE PASCUAL",kristine_acain@hotmail.com,2.75,2.05,1.94,2.19,1.91,NO,25,F,Low Income,College Graduate,Middle Income,Highschool Level,Within City,2020,6,5th Year
+9-20-41,2021104162,"DELA CRUZ, JASMINE SANTOS",jasmine.delacruz49@outlook.com,1.5,1.54,1.86,1.5,2.61,YES,23,0,Low Income,College Graduate,Low Income,College Graduate,Outside City,2020,6,4th Year
+9-20-42,2020105827,"LOPEZ, CARLO ORCALES",carlo_lopez@icloud.com,2.61,1.81,1.82,2.02,2.21,NO,23,M,middle income,College Graduate,middle income,N/A,Within City,2020,12,5th Year
+9-20-43,2019101285,"LIM, ELIEZER RETERACION",eliezer.lim48@yahoo.com,2.6,2.04,2.66,2.32,2.43,NO,29,M,high income,College level,MIDDLE INCOME,N/A,Within City,2020,12,5th Year
+9-20-44,2015105354,"CASANE, MARK VEGA",mark_casane47@gmail.com,2.41,1.99,2.06,2.18,1.78,N,24,M,Middle Income,Highschool Level,Low Income,High School Graduate,In City,2020,12,5th Year
+9-20-45,2019108221,"TALJA, CARMEN MAGNO",carmentalja@icloud.com,1.67,2.2,2.11,2.04,2.27,NO,31,F,Low Income,Elementary Graduate,Low Income,High School Graduate,Within City,2020,6,4th Year
+9-20-46,2019105984,"NAVARRO, ZYRA JEAN RETERACION",zyra.navarro@icloud.com,2.24,1.53,1.88,2.03,2.74,NO,27,F,MIDDLE INCOME,College Graduate,Low income,N/A,Outside City,2020,6,4th Year
+9-20-47,2014101841,"ABAD, AARON RAMIREZ",aaron.abad8@yahoo.com,2.54,1.86,1.93,2.2,2.09,NO,25,M,Low Income,N/A,Low Income,High School Graduate,Outside City,2020,12,5th Year
+9-20-48,2015100301,"FAJARDO, JENNIFER HIPONA",jenniferfajardo9@outlook.com,1.82,1.58,1.75,1.78,2.08,NO,21,F,Low Income,College Graduate,Low Income,College Graduate,Within City,2020,6,4th Year
+9-20-49,2019103787,"PABILLARAN, TANYA BEHAGAN",tanya_pabillaran@outlook.com,2.11,2.25,1.61,1.9,2.2,NO,20,F,Low Income,Highschool Level,Low Income,High School Graduate,Within City,2020,6,4th Year
+9-20-50,2018105822,"CANLAS, ANA OGUIMAS",anacanlas92@outlook.com,2.51,2.28,2.6,2.58,1.54,No,28,F,"PHP 50,000",Highschool Level,"PHP 5,000",High School Graduate,Within City,2020,6,4th Year
+2-19-01,2021103726,"NATIVIDAD, ANA TADEO",ana_natividad@gmail.com,2.03,1.89,2.26,2.04,2.32,NO,29,F,Low Income,college graduate,Middle Income,Highschool Level,Within City,2019,12,5th Year
+2-19-02,2015109254,"GINGONE, KEVIN MORALES",kevin.gingone14@icloud.com,2.17,2.4,1.73,2.2,1.54,NO,25,MALE,Middle Income,HS,Low Income,3,Outside City,2019,6,4th Year
+2-19-03,2014102155,"UMALI, MICHAEL JOHN SORIANO",michael_umali33@icloud.com,1.83,2.21,1.79,1.86,1.95,NO,27,M,below 10k,High School Graduate,20000,College level,Within City,2019,12,5th Year
+2-19-04,2015102683,"BACONGUIS, RICO REYES",rico.baconguis@gmail.com,2.46,1.52,1.84,1.91,2.74,NO,21,M,Low Income,High School Graduate,High Income,College level,Outside City,2019,12,4th Year
+2-19-05,2019106633,"HERNANDEZ, JAMES SALAZAR",jameshernandez@hotmail.com,1.89,2.26,2.43,2.22,2.59,NO,32,M,Low Income,High School Graduate,Low Income,College Graduate,Within City,2019,24,4th Year
+2-19-06,2013109137,"CASANE, VERA PESIDAS",vera.casane42@icloud.com,1.86,2.0,1.88,2.01,2.03,NO,29,F,High Income,Coll. Graduate,Middle Income,high school graduate,Outside City,2019,6,5th Year
+2-19-07,2014102945,"SALAZAR, FRANCIS BEHAGAN",francis_salazar@hotmail.com,2.06,1.72,2.24,2.07,2.07,NO,24,M,Low Income,CG,Middle Income,-,Within City,2019,6,5th Year
+2-19-08,2020105946,"VEGA, EMMANUEL JR SALAZAR",emmanuel.vega@yahoo.com,2.49,2.14,2.69,2.4,2.46,NO,25,MALE,Middle Income,N/A,Middle Income,College Graduate,Within City,2019,24,4th Year
+2-19-09,2017105071,"AMARGA, ROSA NANOL",rosa_amarga@icloud.com,2.62,2.7,1.5,2.35,N/A,NO,27,F,Middle Income,none,Low Income,college grad,Within City,2019,6,5th Year
+2-19-10,2020107434,"NACASABOG, JASMINE MANALO",jasminenacasabog70@yahoo.com,2.25,1.81,2.18,2.12,2.53,NO,20,F,<10000,Highschool Level,≤9999,N/A,Within City,2019,24,5th Year
+2-19-11,2017105424,"RAYPON, ELJOHN REYES",eljohn_raypon@outlook.com,2.74,1.7,1.86,2.15,2.22,NO,28,M,Low Income,College level,Low Income,College Graduate,Within City,2019,12,4th Year
+2-19-12,2019101108,"GINGONE, CARLA GUIBONE",carlagingone@gmail.com,2.09,1.65,2.57,2.05,1.76,NO,23,F,Middle Income,College Graduate,Low Income,College level,Within City,2019,12,5th Year
+2-19-13,2017106996,"FAJARDO, LIZA NAVARRO",liza_fajardo64@yahoo.com,2.74,1.94,1.66,2.13,2.29,NO,27,F,Middle Income,N/A,Middle Income,Elementary Graduate,Within City,2019,6,4th Year
+2-19-14,2020101932,"UMALI, ROGELIO REYES",rogelio.umali18@icloud.com,2.02,1.92,2.2,2.09,N/A,NO,23,M,Middle Income,N/A,Low Income,Highschool Level,Outside City,2019,6,4th Year
+2-19-15,2018105592,"MADRIGAL, ROWENA SORIANO",rowenamadrigal@hotmail.com,2.7,2.54,1.74,2.43,2.1,NO,27,F,Middle Income,High School Graduate,Middle Income,College level,Outside City,2019,12,5th Year
+2-19-16,2019100917,"MORALES, PATRICIA MORALES",patriciamorales@outlook.com,2.17,1.76,2.36,2.19,1.94,NO,22,F,Low Income,Master's Degree,Low Income,College level,Within City,2019,24,4th Year
+2-19-17,2015109751,"PASCUAL, FERDINAND PERALTA",ferdinand_pascual36@outlook.com,2.57,2.39,1.84,2.14,1.96,No,24,M,Low Income,N/A,Low Income,College Graduate,Within City,2019,6,4th Year
+2-19-18,2013107907,"TAN, RAMON GARCIA",ramon_tan95@yahoo.com,2.42,2.15,2.47,2.24,2.53,NO,28,M,Middle Income,5,Low Income,3,Within City,2019,6,4th Year
+2-19-19,2013109736,"DELA PEÑA, MARIO BERNARDO",mario_delapea@yahoo.com,1.56,2.15,2.32,1.95,1.89,NO,25,M,Low Income,Highschool Graduate,Low Income,College Grad,Within City,2019,12,5th Year
+2-19-20,2017101875,"LACSON, ROBERT BAUTISTA",robert.lacson20@hotmail.com,1.63,2.18,2.19,1.93,2.51,NO,22,M,Low Income,Highschool Level,Middle Income,High School Graduate,Within City,2019,6,5th Year
+4-23-44,2021103697,"PABILLARAN, ELJOHN REYES",eljohn.pabillaran@icloud.com,1.91,2.09,2.35,2.01,2.72,NO,22,M,Low Income,College Graduate,High Income,High School Graduate,Within City,2023,35,4th Year
+2-19-21,2013101735,"NILLAS, MERIAN FLORES",merian.nillas@icloud.com,1.99,2.38,2.61,2.37,2.06,NO,25,F,Low Income,College Graduate,Middle Income,College Graduate,Within City,2019,12,4th Year
+2-19-22,2014107672,"PASCUAL, RYAN VEGA",ryan_pascual@gmail.com,2.31,2.46,2.09,2.42,2.62,NO,24,M,High Income,College Graduate,Low Income,College Graduate,Outside City,2019,12,5th Year
+2-19-23,2014107787,"SANTIAGO, OSCAR RAMOS",oscarsantiago@gmail.com,2.56,1.85,1.94,2.14,2.01,NO,31,M,10000-30000,College level,below 10k,College Graduate,Outside City,2019,12,Yr. 4
+2-19-24,2016103992,"VEGA, JOSHUA JAGUALING",joshua.vega@icloud.com,1.93,2.52,2.24,2.32,2.48,NO,28,m,Middle Income,College Graduate,Low Income,College Graduate,Outside City,2019,6,5th Year
+2-19-25,2020105330,"ALPAS, NESTOR MACAS",nestor_alpas6@yahoo.com,2.69,1.59,1.64,2.07,1.97,NO,27,M,Middle Income,N/A,Low Income,N/A,Within City,2019,6,5th Year
+2-19-26,2020108704,"UMALI, BIANCA NAVARRO",bianca.umali@hotmail.com,2.06,1.76,2.6,2.08,2.35,NO,26,F,Middle Income,Master's Degree,High Income,College level,Outside City,2019,6,5th Year
+2-19-27,2013106049,"LACSON, KIRK JOHN LACSON",kirklacson@outlook.com,2.72,1.64,1.85,1.93,2.24,0,31,M,Low Income,High School Graduate,Low Income,College Graduate,Outside City,2019,6,4th Year
+2-19-28,2019105902,"AQUINO, RIKKA MELISSE RAMIREZ",rikkaaquino23@hotmail.com,2.34,1.67,1.59,1.72,2.11,YES,22,F,≤9999,High School Graduate,20000,High School Graduate,Outside City,2019,24,4th Year
+2-19-29,2021109044,"MANALO, BIANCA MERCADAL",bianca_manalo@gmail.com,1.73,2.26,2.22,2.17,2.13,NO,26,F,High Income,NA,Middle Income,not applicable,Outside City,2019,24,5th Year
+2-19-30,2020101311,"FAJARDO, PATRICK PAREDES",patrickfajardo77@yahoo.com,2.73,2.47,2.08,2.3,1.61,NO,27,M,Middle Income,college graduate,Middle Income,COLLEGE GRADUATE,Outside City,2019,24,5th Year
+2-19-31,2018108765,"BERNARDO, JOSHUA BAUTISTA",joshua.bernardo48@yahoo.com,2.63,2.22,1.91,2.21,1.87,NO,22,M,Low Income,,High Income,5,Outside City,2019,6,4th Year
+2-19-32,2015109385,"BAUTISTA, GEORGE JAVIER",george.bautista27@gmail.com,2.42,1.53,2.11,1.91,N/A,NO,24,MALE,Low Income,College Graduate,Low Income,N/A,Within City,2019,24,4
+2-19-33,2015107317,"ALPAS, MARICRIS ASAS",maricrisalpas@gmail.com,2.48,1.8,1.73,2.01,N/A,NO,21,F,High Income,College Graduate,Middle Income,College Graduate,Outside City,2019,12,5th Year
+3-24-04,2014107855,"DELA CRUZ, PAOLO JAGUALING",paolo.delacruz@gmail.com,2.5,1.54,1.53,1.79,1.93,0,22,M,Middle Income,College Graduate,Low Income,N/A,Outside City,2024,18,4th Year
+2-19-34,2020102740,"DIZON, MARK ANTHONY BAGAYNA",mark_dizon53@yahoo.com,2.3,2.44,1.64,2.03,1.88,NO,31,m,High Income,N/A,High Income,College Graduate,Outside City,2019,12,4th Year
+2-19-35,2021107122,"DELA CRUZ, GERALD VEDRA",geralddelacruz@yahoo.com,2.35,2.7,2.35,2.33,2.3,NO,26,M,Middle Income,Elementary Graduate,Middle Income,Elementary Graduate,Within City,2019,12,5th Year
+2-19-36,2019107554,"QUINTO, PATRICK SUAREZ",patrick.quinto64@gmail.com,1.74,1.92,2.36,1.91,2.34,NO,20,M,Low Income,College Graduate,Low Income,High School Graduate,Outside City,2019,12,4th Year
+2-19-37,2013101506,"GARCIA, JAMES MANALO",james_garcia13@hotmail.com,2.3,2.39,1.65,2.22,2.32,NO,30,M,Middle Income,5,High Income,5,Outside City,2019,12,5th Year
+2-19-38,2014107429,"MAGNO, CARMEN JIMENEZ",carmen.magno@yahoo.com,2.63,2.46,1.9,2.23,N/A,NO,32,F,Low Income,Master's Degree,Low Income,Elementary Graduate,Outside City,2019,6,5th Year
+2-19-39,2020103287,"ANGELES, MARY ROSE EBABACOL",mary_angeles90@icloud.com,1.68,2.46,1.77,2.01,2.39,NO,21,F,Low Income,College Graduate,Low Income,College Graduate,Within City,2019,12,4th Year
+2-19-40,2013100619,"ABANIL, NINA JIMENEZ",nina_abanil86@icloud.com,1.91,1.99,1.5,1.86,2.1,NO,31,F,Middle Income,High School Graduate,Middle Income,N/A,outside,2019,6,4th Year

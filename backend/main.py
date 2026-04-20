@@ -20,6 +20,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 RANDOM_STATE = 42
 MISSING_THRESHOLD = 0.30
+MAX_ISSUES_IN_RESPONSE = 200
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DATASET_PATH = ROOT_DIR / "v7 LiCEnSURE Dataset.csv"
@@ -27,6 +28,7 @@ DATASET_PATH = ROOT_DIR / "v7 LiCEnSURE Dataset.csv"
 REQUIRED_COLUMNS = [
     "Student_Code",
     "Student_Name",
+    "Email",
     "GWA",
     "MSTE_AVE",
     "HPGE_AVE",
@@ -39,6 +41,7 @@ REQUIRED_COLUMNS = [
     "Father_Educational_Attainment",
     "Mother_Monthly_Income",
     "Mother_Educational_Attainment",
+    "Year_Level",
     "Exam_year",
     "Months_prep",
 ]
@@ -56,6 +59,7 @@ FEATURE_COLUMNS = [
     "Father_Educational_Attainment",
     "Mother_Monthly_Income",
     "Mother_Educational_Attainment",
+    "Year_Level",
     "Exam_year",
     "Months_prep",
 ]
@@ -71,9 +75,12 @@ NUMERIC_COLUMNS = {
     "Months_prep",
 }
 
+OPTIONAL_MISSING_COLUMNS = {"Email", "Year_Level"}
+
 COLUMN_ALIASES: dict[str, list[str]] = {
     "Student_Code": ["STUDENT_CODE", "STUDENTID", "STUDENT_ID", "STUDENTNO"],
     "Student_Name": ["STUDENT_NAME", "NAME", "FULL_NAME", "STUDENT"],
+    "Email": ["EMAIL", "E_MAIL", "STUDENT_EMAIL", "EMAIL_ADDRESS"],
     "GWA": ["GWA", "GENERAL_WEIGHTED_AVERAGE"],
     "MSTE_AVE": ["MSTE_AVE", "MSTE"],
     "HPGE_AVE": ["HPGE_AVE", "HPGE"],
@@ -86,6 +93,7 @@ COLUMN_ALIASES: dict[str, list[str]] = {
     "Father_Educational_Attainment": ["FATHER_EDUCATIONAL_ATTAINMENT", "FATHER_EDUCATION"],
     "Mother_Monthly_Income": ["MOTHER_MONTHLY_INCOME", "MOTHER_INCOME"],
     "Mother_Educational_Attainment": ["MOTHER_EDUCATIONAL_ATTAINMENT", "MOTHER_EDUCATION"],
+    "Year_Level": ["YEAR_LEVEL", "YEARLEVEL", "YEAR"],
     "Exam_year": ["EXAM_YEAR", "EXAMYEAR"],
     "Months_prep": ["MONTHS_PREP", "MONTHS_PREPARATION", "MONTHS_OF_PREP"],
 }
@@ -119,6 +127,8 @@ class UploadRecord:
     csv_text: str
     total_rows: int
     uploaded_at: str
+    parsed_rows: list[dict[str, Any]] = field(default_factory=list)
+    parsed_columns: list[str] = field(default_factory=list)
     validated: bool = False
     validation_result: dict[str, Any] | None = None
     cleaned_rows: list[dict[str, Any]] = field(default_factory=list)
@@ -146,6 +156,30 @@ def canonicalize_header(header: str) -> str:
         if normalized in COLUMN_ALIASES.get(required, []):
             return required
     return header.strip()
+
+
+def canonicalize_headers(headers: list[str]) -> list[str]:
+    seen: set[str] = set()
+    canonical_headers: list[str] = []
+
+    for raw_header in headers:
+        candidate = canonicalize_header(raw_header)
+        if candidate and candidate not in seen:
+            canonical_headers.append(candidate)
+            seen.add(candidate)
+            continue
+
+        fallback_base = str(raw_header).strip() or "Unnamed"
+        fallback = fallback_base
+        suffix = 2
+        while fallback in seen:
+            fallback = f"{fallback_base}_{suffix}"
+            suffix += 1
+
+        canonical_headers.append(fallback)
+        seen.add(fallback)
+
+    return canonical_headers
 
 
 def normalize_gender(value: Any) -> str | None:
@@ -176,6 +210,30 @@ def normalize_latin(value: Any) -> int | str | None:
     return cleaned
 
 
+def normalize_year_level(value: Any) -> str | None:
+    if pd.isna(value):
+        return None
+
+    cleaned = str(value).strip()
+    if not cleaned:
+        return None
+
+    lower = cleaned.lower()
+    compact = " ".join(lower.replace("-", " ").replace("_", " ").split())
+
+    if compact in {"fourth year", "4th year", "year 4", "4", "fourth"}:
+        return "4th Year"
+    if compact in {"fifth year", "5th year", "year 5", "5", "fifth"}:
+        return "5th Year"
+
+    if "4" in compact and "year" in compact:
+        return "4th Year"
+    if "5" in compact and "year" in compact:
+        return "5th Year"
+
+    return cleaned
+
+
 def normalize_value(column: str, value: Any) -> Any:
     if value is None or (isinstance(value, str) and value.strip().upper() in {"", "N/A", "NA"}):
         return None
@@ -186,6 +244,9 @@ def normalize_value(column: str, value: Any) -> Any:
     if column == "Graduated_with_Latin":
         return normalize_latin(value)
 
+    if column == "Year_Level":
+        return normalize_year_level(value)
+
     if column in NUMERIC_COLUMNS:
         numeric = pd.to_numeric(str(value).replace(",", ""), errors="coerce")
         if pd.isna(numeric):
@@ -195,6 +256,8 @@ def normalize_value(column: str, value: Any) -> Any:
         return float(numeric)
 
     cleaned = str(value).strip()
+    if column == "Email":
+        return cleaned.lower() if cleaned else None
     return cleaned if cleaned else None
 
 
@@ -211,7 +274,7 @@ def clean_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
         for column in REQUIRED_COLUMNS:
             normalized = normalize_value(column, row.get(column))
             normalized_row[column] = normalized
-            if normalized in (None, ""):
+            if normalized in (None, "") and column not in OPTIONAL_MISSING_COLUMNS:
                 missing_count += 1
             if column == "Gender" and normalized not in (None, "Male", "Female"):
                 row_issues.append("Gender should be Male/Female.")
@@ -301,7 +364,8 @@ def ensure_training_model() -> Pipeline:
 
 def parse_csv(csv_text: str) -> pd.DataFrame:
     df = pd.read_csv(StringIO(csv_text), encoding="latin-1")
-    df.columns = [canonicalize_header(c) for c in df.columns]
+    raw_headers = [str(c) for c in df.columns]
+    df.columns = canonicalize_headers(raw_headers)
     return df
 
 
@@ -346,12 +410,17 @@ def upload_csv(request: UploadRequest) -> dict[str, Any]:
     except Exception as error:
         raise HTTPException(status_code=400, detail=f"Upload parse failed: {error}") from error
 
+    parsed_rows = df.to_dict(orient="records")
+    parsed_columns = [str(column) for column in df.columns]
+
     upload_id = uuid4().hex
     record = UploadRecord(
         file_name=request.fileName,
         csv_text=request.csvText,
         total_rows=len(df),
         uploaded_at=pd.Timestamp.utcnow().isoformat(),
+        parsed_rows=parsed_rows,
+        parsed_columns=parsed_columns,
     )
 
     with _upload_lock:
@@ -369,21 +438,40 @@ def upload_csv(request: UploadRequest) -> dict[str, Any]:
 def validate(request: ValidateRequest) -> dict[str, Any]:
     record = get_upload(request.uploadId)
 
-    try:
-        df = parse_csv(record.csv_text)
-    except Exception as error:
-        raise HTTPException(status_code=400, detail=f"Validation failed: {error}") from error
+    if record.validated and record.validation_result is not None:
+        return record.validation_result
 
-    missing_columns = [column for column in REQUIRED_COLUMNS if column not in df.columns]
+    rows = record.parsed_rows
+    headers = record.parsed_columns
+
+    if not headers:
+        try:
+            df = parse_csv(record.csv_text)
+            rows = df.to_dict(orient="records")
+            headers = [str(column) for column in df.columns]
+            with _upload_lock:
+                record.parsed_rows = rows
+                record.parsed_columns = headers
+        except Exception as error:
+            raise HTTPException(status_code=400, detail=f"Validation failed: {error}") from error
+
+    total_rows = len(rows)
+    missing_columns = [
+        column
+        for column in REQUIRED_COLUMNS
+        if column not in headers and column not in OPTIONAL_MISSING_COLUMNS
+    ]
     if missing_columns:
         result = {
             "ok": False,
-            "totalRows": len(df),
+            "totalRows": total_rows,
             "validRows": 0,
-            "issueRows": len(df),
+            "issueRows": total_rows,
             "missingColumns": missing_columns,
             "issues": [],
             "cleanedRows": [],
+            "cleanedRowsCount": 0,
+            "issuesTruncated": False,
             "missingThreshold": MISSING_THRESHOLD,
             "uploadId": request.uploadId,
         }
@@ -393,15 +481,18 @@ def validate(request: ValidateRequest) -> dict[str, Any]:
             record.validated = True
         return result
 
-    cleaned_rows, issues = clean_rows(df.to_dict(orient="records"))
+    cleaned_rows, issues = clean_rows(rows)
+    issues_for_response = issues[:MAX_ISSUES_IN_RESPONSE]
     result = {
         "ok": len(issues) == 0,
-        "totalRows": len(df),
+        "totalRows": total_rows,
         "validRows": len(cleaned_rows),
         "issueRows": len(issues),
         "missingColumns": [],
-        "issues": issues,
-        "cleanedRows": cleaned_rows,
+        "issues": issues_for_response,
+        "cleanedRows": [],
+        "cleanedRowsCount": len(cleaned_rows),
+        "issuesTruncated": len(issues) > len(issues_for_response),
         "missingThreshold": MISSING_THRESHOLD,
         "uploadId": request.uploadId,
     }
@@ -530,21 +621,13 @@ def predict(request: PredictRequest) -> dict[str, Any]:
             {
                 "Student_Code": str(row.get("Student_Code", "") or "").strip(),
                 "Student_Name": str(row.get("Student_Name", "") or "").strip(),
+                "Email": infer_email(
+                    str(row.get("Student_Name", "") or "").strip(),
+                    row.get("Email"),
+                ),
                 "GWA": float(row.get("GWA") or 0),
                 "MSTE_AVE": float(row.get("MSTE_AVE") or 0),
                 "HPGE_AVE": float(row.get("HPGE_AVE") or 0),
                 "PSAD_AVE": float(row.get("PSAD_AVE") or 0),
                 "prediction": label,
-                "probability": failed_prob if label == "FAILED" else (1.0 - failed_prob),
-                "Age": row.get("Age"),
-                "Gender": row.get("Gender") or "Unknown",
-                "Exam_year": row.get("Exam_year"),
-                "Months_prep": row.get("Months_prep"),
-                "Father_Monthly_Income": str(row.get("Father_Monthly_Income") or "N/A"),
-                "Mother_Monthly_Income": str(row.get("Mother_Monthly_Income") or "N/A"),
-                "Father_Educational_Attainment": str(row.get("Father_Educational_Attainment") or "N/A"),
-                "Mother_Educational_Attainment": str(row.get("Mother_Educational_Attainment") or "N/A"),
-            }
-        )
-
-    return {"predictions": predictions}
+                "probability": failed_prob if label == "FAILED" else (1.0 - failed_prob),

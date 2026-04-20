@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/staff/layout": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/staff/layout.js"
+      "static/chunks/app/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,15 +11,20 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/staff/processing/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/staff/processing/page.js"
+      "static/chunks/app/login/page.js"
     ],
-    "/staff/predict/page": [
+    "/staff/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/staff/predict/page.js"
+      "static/chunks/app/staff/page.js"
+    ],
+    "/staff/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/staff/layout.js"
     ],
     "/staff/upload/page": [
       "static/chunks/webpack.js",
@@ -31,20 +36,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/staff/validate/page.js"
     ],
-    "/staff/students/page": [
+    "/staff/processing/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/staff/students/page.js"
+      "static/chunks/app/staff/processing/page.js"
     ],
-    "/staff/page": [
+    "/staff/predict/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/staff/page.js"
+      "static/chunks/app/staff/predict/page.js"
     ],
     "/staff/summary/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/staff/summary/page.js"
+    ],
+    "/staff/students/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/staff/students/page.js"
     ]
   }
 }

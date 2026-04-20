@@ -5,6 +5,7 @@ export type UploadStep = 'upload' | 'validating' | 'validated' | 'error'
 export const REQUIRED_COLUMNS = [
   'Student_Code',
   'Student_Name',
+  'Email',
   'GWA',
   'MSTE_AVE',
   'HPGE_AVE',
@@ -17,6 +18,7 @@ export const REQUIRED_COLUMNS = [
   'Father_Educational_Attainment',
   'Mother_Monthly_Income',
   'Mother_Educational_Attainment',
+  'Year_Level',
   'Exam_year',
   'Months_prep',
 ] as const
@@ -26,6 +28,7 @@ type RequiredColumn = (typeof REQUIRED_COLUMNS)[number]
 const COLUMN_ALIASES: Record<RequiredColumn, string[]> = {
   Student_Code: ['STUDENT_CODE', 'STUDENTID', 'STUDENT_ID', 'STUDENTNO'],
   Student_Name: ['STUDENT_NAME', 'NAME', 'FULL_NAME', 'STUDENT'],
+  Email: ['EMAIL', 'E_MAIL', 'STUDENT_EMAIL', 'EMAIL_ADDRESS'],
   GWA: ['GWA', 'GENERAL_WEIGHTED_AVERAGE'],
   MSTE_AVE: ['MSTE_AVE', 'MSTE_AVE', 'MSTE'],
   HPGE_AVE: ['HPGE_AVE', 'HPGE_AVE', 'HPGE'],
@@ -38,6 +41,7 @@ const COLUMN_ALIASES: Record<RequiredColumn, string[]> = {
   Father_Educational_Attainment: ['FATHER_EDUCATIONAL_ATTAINMENT', 'FATHER_EDUCATION'],
   Mother_Monthly_Income: ['MOTHER_MONTHLY_INCOME', 'MOTHER_INCOME'],
   Mother_Educational_Attainment: ['MOTHER_EDUCATIONAL_ATTAINMENT', 'MOTHER_EDUCATION'],
+  Year_Level: ['YEAR_LEVEL', 'YEARLEVEL', 'YEAR'],
   Exam_year: ['EXAM_YEAR', 'EXAMYEAR'],
   Months_prep: ['MONTHS_PREP', 'MONTHS_PREPARATION', 'MONTHS_OF_PREP'],
 }
@@ -52,6 +56,8 @@ const NUMERIC_COLUMNS = new Set<RequiredColumn>([
   'Exam_year',
   'Months_prep',
 ])
+
+const OPTIONAL_MISSING_COLUMNS = new Set<RequiredColumn>(['Email', 'Year_Level'])
 
 export interface RowIssue {
   rowNumber: number
@@ -112,6 +118,19 @@ function normalizeValue(column: RequiredColumn, value: unknown): string | number
   const cleaned = String(value).trim()
   if (!cleaned || cleaned.toUpperCase() === 'N/A' || cleaned.toUpperCase() === 'NA') return null
 
+  if (column === 'Year_Level') {
+    const lower = cleaned.toLowerCase()
+    const compact = lower.replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim()
+
+    if (['4', '4th', '4th year', 'year 4', 'fourth', 'fourth year'].includes(compact)) return '4th Year'
+    if (['5', '5th', '5th year', 'year 5', 'fifth', 'fifth year'].includes(compact)) return '5th Year'
+
+    if (compact.includes('year') && compact.includes('4')) return '4th Year'
+    if (compact.includes('year') && compact.includes('5')) return '5th Year'
+
+    return cleaned
+  }
+
   if (column === 'Gender') {
     const lower = cleaned.toLowerCase()
     if (lower === 'male' || lower === 'm') return 'Male'
@@ -135,12 +154,18 @@ function normalizeValue(column: RequiredColumn, value: unknown): string | number
     return null
   }
 
+  if (column === 'Email') {
+    return cleaned.toLowerCase()
+  }
+
   return cleaned
 }
 
 export function cleanAndValidateCsv(csvText: string): UploadCleaningResult {
   const { rows, headers } = parseCsv(csvText)
-  const missingColumns = REQUIRED_COLUMNS.filter((column) => !headers.includes(column))
+  const missingColumns = REQUIRED_COLUMNS.filter(
+    (column) => !headers.includes(column) && !OPTIONAL_MISSING_COLUMNS.has(column),
+  )
 
   if (missingColumns.length > 0) {
     return {
@@ -169,7 +194,7 @@ export function cleanAndValidateCsv(csvText: string): UploadCleaningResult {
       const normalized = normalizeValue(column, row[column])
       normalizedRow[column] = normalized
 
-      if (normalized == null || normalized === '') {
+      if ((normalized == null || normalized === '') && !OPTIONAL_MISSING_COLUMNS.has(column)) {
         missingCount += 1
       }
 

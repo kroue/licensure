@@ -3,15 +3,11 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import { CalendarDays, CheckCircle2, ClipboardCheck, UploadCloud, XCircle } from 'lucide-react'
-import {
-  getPredictedRows,
-  getProcessingSummary,
-  getUploadSummary,
-  type ProcessingSummary,
-  type UploadSummary,
-} from '@/lib/upload-session'
+import { useAuth } from '@/lib/auth'
+import { subscribeUploadHistoryAnalytics, type UploadHistoryAnalytics } from '@/lib/firebase'
 
 type HistoryRow = {
+  uploadId: string
   fileName: string
   uploadDate: string
   records: number | '-'
@@ -33,37 +29,47 @@ function formatDateTime(isoOrDate: string): string {
 }
 
 export default function ProcessingSummaryPage() {
-  const [uploadSummary, setUploadSummary] = useState<UploadSummary | null>(null)
-  const [processingSummary, setProcessingSummary] = useState<ProcessingSummary | null>(null)
-  const [predictedCount, setPredictedCount] = useState(0)
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [rowsFromDb, setRowsFromDb] = useState<UploadHistoryAnalytics[]>([])
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    setUploadSummary(getUploadSummary())
-    setProcessingSummary(getProcessingSummary())
-    setPredictedCount(getPredictedRows().length)
-  }, [])
+    if (!user?.uid) {
+      setRowsFromDb([])
+      setLoading(false)
+      return
+    }
+
+    const unsubscribe = subscribeUploadHistoryAnalytics(
+      { uid: user.uid, role: user.role },
+      (rows) => {
+        setRowsFromDb(rows)
+        setLoading(false)
+      },
+      (loadError) => {
+        setError(loadError.message || 'Failed to load upload history from Firestore.')
+        setLoading(false)
+      },
+    )
+
+    return () => unsubscribe()
+  }, [user?.role, user?.uid])
 
   const historyRows = useMemo<HistoryRow[]>(() => {
-    if (!uploadSummary) return []
+    return rowsFromDb.map((row) => ({
+      uploadId: row.uploadId,
+      fileName: row.fileName,
+      uploadDate: formatDateTime(row.uploadedAt),
+      records: typeof row.records === 'number' && row.records >= 0 ? row.records : '-',
+      status: row.status === 'Success' ? 'Success' : 'Failed',
+      processedBy: row.runBy.email,
+    }))
+  }, [rowsFromDb])
 
-    const hasPrediction = predictedCount > 0
-    const processingDone = Boolean(processingSummary?.cleanedAndEncoded)
-    const isSuccess = hasPrediction && processingDone
-
-    return [
-      {
-        fileName: uploadSummary.fileName,
-        uploadDate: formatDateTime(uploadSummary.importedAt),
-        records: uploadSummary.validRows > 0 ? uploadSummary.validRows : '-',
-        status: isSuccess ? 'Success' : 'Failed',
-        processedBy: 'staff.user@ustp.edu.ph',
-      },
-    ]
-  }, [predictedCount, processingSummary?.cleanedAndEncoded, uploadSummary])
-
-  const totalUploads = uploadSummary ? 1 : 0
+  const totalUploads = historyRows.length
   const successfulUploads = historyRows.filter((row) => row.status === 'Success').length
-  const totalProcessed = processingSummary?.processedRows ?? uploadSummary?.validRows ?? 0
+  const totalProcessed = historyRows.reduce((sum, row) => sum + (typeof row.records === 'number' ? row.records : 0), 0)
 
   return (
     <div className="p-8 max-w-7xl space-y-6">
@@ -114,7 +120,7 @@ export default function ProcessingSummaryPage() {
             </thead>
             <tbody>
               {historyRows.map((row) => (
-                <tr key={row.fileName} className="border-b border-gray-200 last:border-b-0">
+                <tr key={row.uploadId} className="border-b border-gray-200 last:border-b-0">
                   <td className="px-8 py-5 text-lg text-gray-800">{row.fileName}</td>
                   <td className="px-8 py-5 text-lg text-gray-700">
                     <span className="inline-flex items-center gap-2">
@@ -143,7 +149,7 @@ export default function ProcessingSummaryPage() {
               {historyRows.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-8 py-10 text-center text-gray-500">
-                    No upload history yet. Upload and process a CSV file first.
+                    {loading ? 'Loading upload history...' : 'No upload history yet. Upload and process a CSV file first.'}
                   </td>
                 </tr>
               )}
@@ -151,6 +157,12 @@ export default function ProcessingSummaryPage() {
           </table>
         </div>
       </section>
+
+      {error && (
+        <section className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700 text-sm">
+          {error}
+        </section>
+      )}
 
       <div>
         <Link

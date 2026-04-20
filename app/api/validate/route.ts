@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 
 const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL ?? 'http://127.0.0.1:8000'
+const BACKEND_TIMEOUT_MS = 20000
 
 export async function POST(request: Request) {
   try {
@@ -13,11 +14,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'uploadId is required for validation.' }, { status: 400 })
     }
 
-    const backendResponse = await fetch(`${PYTHON_BACKEND_URL}/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uploadId }),
-    })
+    const controller = new AbortController()
+    const timeoutHandle = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS)
+
+    let backendResponse: Response
+    try {
+      backendResponse = await fetch(`${PYTHON_BACKEND_URL}/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uploadId }),
+        signal: controller.signal,
+      })
+    } finally {
+      clearTimeout(timeoutHandle)
+    }
 
     const payload = await backendResponse.json() as { detail?: string; error?: string }
     if (!backendResponse.ok) {
@@ -29,6 +39,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(payload)
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: 'Validation timed out while waiting for Python backend. Ensure backend is running and stable.' },
+        { status: 504 },
+      )
+    }
+
     const message = error instanceof Error ? error.message : 'Validation failed.'
     return NextResponse.json({ error: message }, { status: 500 })
   }

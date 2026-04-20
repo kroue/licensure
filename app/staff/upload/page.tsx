@@ -3,6 +3,8 @@ import { useState, useCallback } from 'react'
 import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { clearUploadedCsvPayload, clearValidationArtifacts, saveUploadedCsvPayload } from '@/lib/upload-session'
+import { useAuth } from '@/lib/auth'
+import { createAuditLog, upsertUploadHistoryAnalytics } from '@/lib/firebase'
 
 type Step = 'upload' | 'uploaded' | 'error'
 
@@ -16,11 +18,17 @@ function readFileAsText(file: File): Promise<string> {
 }
 
 export default function UploadPage() {
+  const { user } = useAuth()
   const [step, setStep] = useState<Step>('upload')
   const [fileName, setFileName] = useState('')
   const [fileSizeKB, setFileSizeKB] = useState('0.00')
   const [errorMessage, setErrorMessage] = useState('')
   const [dragging, setDragging] = useState(false)
+
+  const estimateCsvRows = (csvText: string): number => {
+    const lines = csvText.split(/\r?\n/).filter((line) => line.trim().length > 0)
+    return Math.max(0, lines.length - 1)
+  }
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.name.endsWith('.csv')) {
@@ -53,14 +61,65 @@ export default function UploadPage() {
         uploadedAt: new Date().toISOString(),
       })
 
+      if (user?.uid) {
+        try {
+          const estimatedRows = estimateCsvRows(csvText)
+
+          await upsertUploadHistoryAnalytics({
+            uploadId: payload.uploadId,
+            fileName: file.name,
+            uploadedAt: new Date().toISOString(),
+            records: estimatedRows,
+            status: 'Uploaded',
+            runBy: {
+              uid: user.uid,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+            },
+          })
+
+          await createAuditLog({
+            action: 'Import CSV',
+            details: `Uploaded ${file.name} (${estimatedRows} records)`,
+            status: 'Success',
+            actor: {
+              uid: user.uid,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+            },
+            metadata: {
+              uploadId: payload.uploadId,
+            },
+          })
+        } catch {
+          setErrorMessage('File uploaded, but upload analytics logging failed.')
+        }
+      }
+
       // New upload invalidates prior validation/prediction outputs.
       clearValidationArtifacts()
       setStep('uploaded')
     } catch (error) {
+      if (user?.uid) {
+        void createAuditLog({
+          action: 'Import CSV',
+          details: `Failed to upload ${file.name} - ${error instanceof Error ? error.message : 'Unknown upload error'}`,
+          status: 'Failed',
+          actor: {
+            uid: user.uid,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          },
+        })
+      }
+
       setErrorMessage(error instanceof Error ? error.message : 'Unable to upload CSV file.')
       setStep('error')
     }
-  }, [])
+  }, [user])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()

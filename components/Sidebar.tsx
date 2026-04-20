@@ -11,10 +11,9 @@ interface NavItem { href: string; label: string; icon: React.FC<{ className?: st
 const chairmanNav: NavItem[] = [
   { href: '/chairman', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/chairman/predictions', label: 'Student Predictions', icon: TrendingUp },
-  { href: '/chairman/model', label: 'Model Performance', icon: BarChart3 },
-  { href: '/chairman/reports', label: 'Reports', icon: FileText },
+  { href: '/chairman/reports', label: 'Predictive Reports', icon: FileText },
   { href: '/chairman/audit', label: 'Audit Logs', icon: ClipboardList },
-  { href: '/chairman/users', label: 'User Accounts', icon: UserCog },
+  { href: '/chairman/users', label: 'User Management', icon: UserCog },
 ]
 
 const staffNav: NavItem[] = [
@@ -30,12 +29,22 @@ const staffNav: NavItem[] = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { role, logout } = useAuth()
+  const { role, user, sessionStartedAt, logout } = useAuth()
   const nav = role === 'chairman' ? chairmanNav : staffNav
   const roleLabel = role === 'chairman' ? 'Chairman / Dean' : 'Staff'
+  const startedLabel = sessionStartedAt
+    ? new Date(sessionStartedAt).toLocaleString('en-PH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+    : null
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     router.push('/login')
   }
 
@@ -61,7 +70,10 @@ export default function Sidebar() {
       {/* Role badge */}
       <div className="px-6 py-3 border-b border-white/10">
         <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Logged in as</div>
-        <div className="text-white text-sm font-semibold">{roleLabel}</div>
+        <div className="text-white text-sm font-semibold leading-tight">{user?.name || roleLabel}</div>
+        <div className="text-white/60 text-xs mt-1 break-all">{user?.email || '-'}</div>
+        <div className="text-white/40 text-xs mt-1">Role: {roleLabel}</div>
+        {startedLabel && <div className="text-white/40 text-xs mt-1">Session: {startedLabel}</div>}
       </div>
 
       {/* Nav */}

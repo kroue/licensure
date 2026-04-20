@@ -5,11 +5,18 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
-import { DEMO_ACCOUNTS, BEST_MODEL } from '@/lib/data'
+import { BEST_MODEL } from '@/lib/data'
+
+type LoginLane = 'chairman' | 'staff'
+
+const CHAIRMAN_ACCOUNT = { email: 'chairman@ustp.edu.ph', password: 'chairman123' }
+const DEAN_ACCOUNT = { email: 'dean@ustp.edu.ph', password: 'dean123' }
+const STAFF_ACCOUNT = { email: 'staff@ustp.edu.ph', password: 'staff123' }
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, loading: authLoading } = useAuth()
+  const [lane, setLane] = useState<LoginLane>('chairman')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -20,22 +27,37 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 700))
-    const chair = DEMO_ACCOUNTS.chairman
-    const staff = DEMO_ACCOUNTS.staff
-    if (email === chair.email && password === chair.password) {
-      login('chairman'); router.push('/chairman')
-    } else if (email === staff.email && password === staff.password) {
-      login('staff'); router.push('/staff')
-    } else {
-      setError('Invalid email or password. Please try again.')
+
+    try {
+      const role = await Promise.race<Role>([
+        login(email, password),
+        new Promise<Role>((_, reject) => {
+          setTimeout(() => reject(new Error('Sign in is taking too long. Please check your internet or Firebase settings.')), 15000)
+        }),
+      ])
+      if (lane === 'chairman' && role !== 'chairman') {
+        setError('This account belongs to Staff. Choose Staff login.')
+        setLoading(false)
+        return
+      }
+
+      if (lane === 'staff' && role !== 'staff') {
+        setError('This account belongs to Chairman / Dean. Choose Chairman / Dean login.')
+        setLoading(false)
+        return
+      }
+
+      router.push(role === 'chairman' ? '/chairman' : '/staff')
+    } catch (loginError) {
+      setError(loginError instanceof Error ? loginError.message : 'Invalid email or password. Please try again.')
     }
+
     setLoading(false)
   }
 
-  const fillDemo = (role: 'chairman' | 'staff') => {
-    setEmail(DEMO_ACCOUNTS[role].email)
-    setPassword(DEMO_ACCOUNTS[role].password)
+  const fillAccount = (account: { email: string; password: string }) => {
+    setEmail(account.email)
+    setPassword(account.password)
     setError('')
   }
 
@@ -96,17 +118,65 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <button onClick={() => fillDemo('chairman')}
+              <button
+                type="button"
+                onClick={() => {
+                  setLane('chairman')
+                  fillAccount(CHAIRMAN_ACCOUNT)
+                }}
                 className="text-xs py-2 px-3 rounded-lg border-2 transition-all hover:shadow-md font-medium"
-                style={{ borderColor: '#0B2C5D', color: '#0B2C5D', backgroundColor: 'rgba(11,44,93,0.04)' }}>
-                Demo: Chairman
+                style={
+                  lane === 'chairman'
+                    ? { borderColor: '#F2B705', color: '#0B2C5D', backgroundColor: 'rgba(242,183,5,0.16)' }
+                    : { borderColor: '#cbd5e1', color: '#0B2C5D', backgroundColor: 'white' }
+                }
+              >
+                Chairman / Dean
               </button>
-              <button onClick={() => fillDemo('staff')}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setLane('staff')
+                  fillAccount(STAFF_ACCOUNT)
+                }}
                 className="text-xs py-2 px-3 rounded-lg border-2 transition-all hover:shadow-md font-medium"
-                style={{ borderColor: '#F2B705', color: '#92700a', backgroundColor: 'rgba(242,183,5,0.08)' }}>
-                Demo: Staff
+                style={
+                  lane === 'staff'
+                    ? { borderColor: '#F2B705', color: '#0B2C5D', backgroundColor: 'rgba(242,183,5,0.16)' }
+                    : { borderColor: '#cbd5e1', color: '#0B2C5D', backgroundColor: 'white' }
+                }
+              >
+                Staff
               </button>
             </div>
+
+            {lane === 'chairman' && (
+              <p className="text-xs text-gray-500 mb-4">Use chairman@ustp.edu.ph or dean@ustp.edu.ph.</p>
+            )}
+
+            {lane === 'staff' && (
+              <p className="text-xs text-gray-500 mb-4">Use a staff Firebase account created by Chairman / Dean.</p>
+            )}
+
+            {lane === 'chairman' && (
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <button
+                  type="button"
+                  onClick={() => fillAccount(CHAIRMAN_ACCOUNT)}
+                  className="text-xs py-2 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Fill Chairman
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillAccount(DEAN_ACCOUNT)}
+                  className="text-xs py-2 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Fill Dean
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
@@ -136,6 +206,11 @@ export default function LoginPage() {
                 {loading ? 'Signing in…' : 'Sign In'}
               </button>
             </form>
+            {!authLoading && (
+              <p className="mt-4 text-xs text-gray-500">
+                Sign in using Firebase accounts. Chairman and Dean can create staff accounts in User Accounts.
+              </p>
+            )}
           </div>
           <p className="text-center text-gray-400 text-xs mt-6">
             USTP – Civil Engineering Department · LiCEnSURE System

@@ -1,124 +1,474 @@
 'use client'
-import { useState } from 'react'
-import { FileText, Download, Eye, Filter, ChevronDown } from 'lucide-react'
 
-const reports = [
-  { id: 1, title: 'Q1 2024 Predictive Report', type: 'Predictive', date: '2024-01-22', records: 83, generatedBy: 'Chairman', status: 'Ready' },
-  { id: 2, title: 'Batch 2024 Jan-A Summary', type: 'Upload Summary', date: '2024-01-22', records: 45, generatedBy: 'Staff User 1', status: 'Ready' },
-  { id: 3, title: 'Batch 2024 Jan-B Summary', type: 'Upload Summary', date: '2024-01-22', records: 38, generatedBy: 'Staff User 2', status: 'Ready' },
-  { id: 4, title: 'Model Performance Report – RF v2', type: 'Model Performance', date: '2024-01-20', records: null, generatedBy: 'System', status: 'Ready' },
-  { id: 5, title: 'AY 2023 Annual Board Exam Analysis', type: 'Annual', date: '2023-12-15', records: 120, generatedBy: 'Chairman', status: 'Ready' },
-]
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Download, Filter, Printer } from 'lucide-react'
+import { useAuth } from '@/lib/auth'
+import {
+  createAuditLog,
+  getLatestPredictionRunAnalytics,
+  getPredictionRowsAnalyticsByRunId,
+  type PredictionRowAnalytics,
+} from '@/lib/firebase'
 
-const typeColors: Record<string, string> = {
-  'Predictive': 'bg-blue-50 text-blue-700',
-  'Upload Summary': 'bg-purple-50 text-purple-700',
-  'Model Performance': 'bg-orange-50 text-orange-700',
-  'Annual': 'bg-green-50 text-green-700',
+type RiskCategory = 'All Risk Levels' | 'High Risk' | 'Medium Risk' | 'Low Risk'
+
+type ReportRow = {
+  cohortYear: string
+  yearLevel: string
+  prediction: 'PASSED' | 'FAILED'
+  probability: number
+  riskLevel: 'High Risk' | 'Medium Risk' | 'Low Risk'
+}
+
+function toNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) return parsed
+  }
+  return null
+}
+
+function toText(value: unknown, fallback: string): string {
+  if (typeof value === 'string' && value.trim()) return value.trim()
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return fallback
+}
+
+function toReportRow(source: PredictionRowAnalytics): ReportRow {
+  const student = source.student as Record<string, unknown>
+  const predictionRaw = toText(student['prediction'], 'PASSED').toUpperCase()
+  const prediction: 'PASSED' | 'FAILED' = predictionRaw === 'FAILED' ? 'FAILED' : 'PASSED'
+  const probability = toNumber(student['probability']) ?? 0
+  const riskScore = prediction === 'FAILED' ? probability : 1 - probability
+  const riskLevel: 'High Risk' | 'Medium Risk' | 'Low Risk' =
+    riskScore >= 0.7 ? 'High Risk' : riskScore >= 0.4 ? 'Medium Risk' : 'Low Risk'
+
+  return {
+    cohortYear: toText(student['Exam_year'] ?? student['Cohort_Year'] ?? student['cohortYear'], 'Unknown'),
+    yearLevel: toText(student['Year_Level'] ?? student['YearLevel'] ?? student['yearLevel'], 'All Year Levels'),
+    prediction,
+    probability,
+    riskLevel,
+  }
+}
+
+function formatDate(dateText: string): string {
+  const date = new Date(dateText)
+  if (Number.isNaN(date.getTime())) return new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 export default function ReportsPage() {
-  const [generating, setGenerating] = useState(false)
-  const [success, setSuccess] = useState(false)
+  const { user } = useAuth()
+  const reportRef = useRef<HTMLDivElement | null>(null)
 
-  const handleGenerate = async () => {
-    setGenerating(true)
-    await new Promise(r => setTimeout(r, 1500))
-    setGenerating(false)
-    setSuccess(true)
-    setTimeout(() => setSuccess(false), 3000)
+  const [loading, setLoading] = useState(true)
+  const [downloading, setDownloading] = useState(false)
+  const [error, setError] = useState('')
+  const [generatedOn, setGeneratedOn] = useState(new Date().toISOString())
+  const [rows, setRows] = useState<ReportRow[]>([])
+  const [cohortYear, setCohortYear] = useState('All Cohorts')
+  const [yearLevel, setYearLevel] = useState('All Year Levels')
+  const [riskCategory, setRiskCategory] = useState<RiskCategory>('All Risk Levels')
+  const hasLoggedReportView = useRef(false)
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setLoading(false)
+      return
+    }
+
+    const load = async () => {
+      try {
+        setLoading(true)
+        setError('')
+        const latest = await getLatestPredictionRunAnalytics({ uid: user.uid, role: user.role })
+
+        if (!latest?.id) {
+          setRows([])
+          return
+        }
+
+        setGeneratedOn(latest.predictionGeneratedAt)
+
+        const analyticsRows = await getPredictionRowsAnalyticsByRunId(latest.id, {
+          uid: user.uid,
+          role: user.role,
+        })
+
+        const mappedRows = analyticsRows.map((item) => toReportRow(item))
+        setRows(mappedRows)
+
+        if (!hasLoggedReportView.current) {
+          hasLoggedReportView.current = true
+          void createAuditLog({
+            action: 'View Report',
+            details: `Opened predictive report view (${mappedRows.length} rows)` ,
+            status: 'Success',
+            actor: {
+              uid: user.uid,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+            },
+          })
+        }
+      } catch (loadError) {
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load report data from Firestore.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void load()
+  }, [user?.role, user?.uid])
+
+  const cohortOptions = useMemo(() => {
+    const years = Array.from(new Set(rows.map((row) => row.cohortYear))).filter((value) => value && value !== 'Unknown')
+    years.sort((a, b) => Number(b) - Number(a))
+    return ['All Cohorts', ...years]
+  }, [rows])
+
+  const yearLevelOptions = useMemo(() => {
+    const sourceRows = cohortYear === 'All Cohorts' ? rows : rows.filter((row) => row.cohortYear === cohortYear)
+    const levels = Array.from(new Set(sourceRows.map((row) => row.yearLevel))).filter(Boolean)
+    return ['All Year Levels', ...levels]
+  }, [cohortYear, rows])
+
+  useEffect(() => {
+    if (!yearLevelOptions.includes(yearLevel)) {
+      setYearLevel('All Year Levels')
+    }
+  }, [yearLevelOptions, yearLevel])
+
+  const filteredRows = useMemo(() => {
+    return rows.filter((row) => {
+      const matchesCohort = cohortYear === 'All Cohorts' || row.cohortYear === cohortYear
+      const matchesYearLevel = yearLevel === 'All Year Levels' || row.yearLevel === yearLevel
+      const matchesRisk = riskCategory === 'All Risk Levels' || row.riskLevel === riskCategory
+      return matchesCohort && matchesYearLevel && matchesRisk
+    })
+  }, [cohortYear, riskCategory, rows, yearLevel])
+
+  const totalStudents = filteredRows.length
+  const predictedPass = filteredRows.filter((row) => row.prediction === 'PASSED').length
+  const predictedFail = totalStudents - predictedPass
+  const passRate = totalStudents > 0 ? (predictedPass / totalStudents) * 100 : 0
+  const highRiskCount = filteredRows.filter((row) => row.riskLevel === 'High Risk').length
+  const mediumRiskCount = filteredRows.filter((row) => row.riskLevel === 'Medium Risk').length
+  const lowRiskCount = filteredRows.filter((row) => row.riskLevel === 'Low Risk').length
+
+  const handlePrint = () => {
+    if (user?.uid) {
+      void createAuditLog({
+        action: 'Generate Report',
+        details: `Printed predictive report for ${cohortYear}`,
+        status: 'Success',
+        actor: {
+          uid: user.uid,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        },
+      })
+    }
+
+    window.print()
+  }
+
+  const handleDownloadPdf = async () => {
+    if (!reportRef.current || totalStudents === 0) return
+
+    try {
+      setDownloading(true)
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ])
+
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+      })
+
+      const imageData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'pt', 'a4')
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const imgWidth = pageWidth - 40
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      const printableHeight = pageHeight - 40
+
+      let heightLeft = imgHeight
+      let position = 20
+
+      pdf.addImage(imageData, 'PNG', 20, position, imgWidth, imgHeight)
+      heightLeft -= printableHeight
+
+      while (heightLeft > 0) {
+        position = 20 - (imgHeight - heightLeft)
+        pdf.addPage()
+        pdf.addImage(imageData, 'PNG', 20, position, imgWidth, imgHeight)
+        heightLeft -= printableHeight
+      }
+
+      const safeCohort = cohortYear.replace(/[^a-zA-Z0-9_-]/g, '-')
+      pdf.save(`licensure-predictive-report-${safeCohort}.pdf`)
+
+      if (user?.uid) {
+        await createAuditLog({
+          action: 'Generate Report',
+          details: `Created predictive report PDF for ${cohortYear}`,
+          status: 'Success',
+          actor: {
+            uid: user.uid,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          },
+        })
+      }
+    } catch (downloadError) {
+      setError(downloadError instanceof Error ? downloadError.message : 'Unable to generate PDF report.')
+
+      if (user?.uid) {
+        void createAuditLog({
+          action: 'Generate Report',
+          details: `Failed to generate predictive report PDF - ${downloadError instanceof Error ? downloadError.message : 'Unknown error'}`,
+          status: 'Failed',
+          actor: {
+            uid: user.uid,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          },
+        })
+      }
+    } finally {
+      setDownloading(false)
+    }
   }
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
-          <p className="text-gray-500 text-sm mt-1">Generate and download predictive analysis reports</p>
-        </div>
-        <button onClick={handleGenerate} disabled={generating}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-70"
-          style={{ backgroundColor: '#0B2C5D' }}>
-          <FileText className="w-4 h-4" />
-          {generating ? 'Generating...' : 'Generate New Report'}
-        </button>
+    <div className="p-8 max-w-7xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold" style={{ color: '#0B2C5D' }}>Predictive Reports</h1>
+        <p className="text-sm text-gray-600 mt-2">Generate comprehensive reports with filters and download options</p>
       </div>
 
-      {success && (
-        <div className="mb-5 px-4 py-3 rounded-lg text-sm font-medium bg-green-50 text-green-700 border border-green-200">
-          ✓ Report generated successfully and is ready for download.
+      <section className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm space-y-6">
+        <div className="inline-flex items-center gap-2 text-[#0B2C5D] text-xl font-semibold">
+          <Filter className="h-5 w-5" />
+          Report Filters
         </div>
-      )}
 
-      {/* Report type cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: 'Predictive Reports', count: 2, color: '#0B2C5D', bg: '#e8edf5' },
-          { label: 'Upload Summaries', count: 2, color: '#7c3aed', bg: '#f5f3ff' },
-          { label: 'Model Performance', count: 1, color: '#ea580c', bg: '#fff7ed' },
-          { label: 'Annual Reports', count: 1, color: '#16a34a', bg: '#f0fdf4' },
-        ].map(({ label, count, color, bg }) => (
-          <div key={label} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-            <div className="text-2xl font-bold" style={{ color }}>{count}</div>
-            <div className="text-gray-500 text-sm mt-1">{label}</div>
-            <div className="w-8 h-1 rounded-full mt-2" style={{ backgroundColor: color }} />
-          </div>
-        ))}
-      </div>
-
-      {/* Reports table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="font-semibold text-gray-700">All Reports</h3>
-          <button className="flex items-center gap-1.5 text-gray-500 text-sm hover:text-gray-700">
-            <Filter className="w-4 h-4" /> Filter <ChevronDown className="w-3 h-3" />
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
-                <th className="text-left px-5 py-3 font-semibold text-gray-600 text-xs uppercase">Report</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600 text-xs uppercase">Type</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600 text-xs uppercase">Date</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600 text-xs uppercase">Records</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600 text-xs uppercase">Generated By</th>
-                <th className="text-left px-5 py-3 font-semibold text-gray-600 text-xs uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {reports.map(r => (
-                <tr key={r.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <span className="font-medium text-gray-800">{r.title}</span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[r.type] || 'bg-gray-100 text-gray-600'}`}>
-                      {r.type}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-500">{r.date}</td>
-                  <td className="px-5 py-3.5 text-gray-500">{r.records ?? '—'}</td>
-                  <td className="px-5 py-3.5 text-gray-500">{r.generatedBy}</td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <button className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button className="p-1.5 rounded-lg text-gray-400 hover:text-green-600 hover:bg-green-50 transition-all">
-                        <Download className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <p className="text-sm text-gray-600 mb-2">Cohort Year</p>
+            <select
+              value={cohortYear}
+              onChange={(event) => setCohortYear(event.target.value)}
+              className="h-12 w-full rounded-xl border border-gray-300 px-4 text-sm text-gray-800 bg-white focus:outline-none"
+            >
+              {cohortOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
               ))}
-            </tbody>
-          </table>
+            </select>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600 mb-2">Year Level</p>
+            <select
+              value={yearLevel}
+              onChange={(event) => setYearLevel(event.target.value)}
+              className="h-12 w-full rounded-xl border border-gray-300 px-4 text-sm text-gray-800 bg-white focus:outline-none"
+            >
+              {yearLevelOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600 mb-2">Risk Category</p>
+            <select
+              value={riskCategory}
+              onChange={(event) => setRiskCategory(event.target.value as RiskCategory)}
+              className="h-12 w-full rounded-xl border border-gray-300 px-4 text-sm text-gray-800 bg-white focus:outline-none"
+            >
+              {['All Risk Levels', 'High Risk', 'Medium Risk', 'Low Risk'].map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <header className="px-8 py-6 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-[#0B2C5D]">Report Preview</h2>
+            <p className="text-sm text-gray-600 mt-2">Licensure Exam Predictive Report - Cohort {cohortYear}</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={downloading || totalStudents === 0 || loading}
+              className="h-11 rounded-2xl px-5 inline-flex items-center gap-2 text-sm font-semibold text-white disabled:opacity-50"
+              style={{ backgroundColor: '#0B2C5D' }}
+            >
+              <Download className="h-4 w-4" />
+              {downloading ? 'Preparing PDF...' : 'Download PDF'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePrint}
+              disabled={totalStudents === 0 || loading}
+              className="h-11 rounded-2xl px-5 inline-flex items-center gap-2 text-sm border border-[#0B2C5D] text-[#0B2C5D] disabled:opacity-50"
+            >
+              <Printer className="h-4 w-4" />
+              Print
+            </button>
+          </div>
+        </header>
+
+        <div className="px-8 py-10" ref={reportRef}>
+          <div className="text-center">
+            <h3 className="text-3xl font-semibold text-[#0B2C5D]">LiCEnSURE Predictive Report</h3>
+            <p className="text-base text-gray-600 mt-3">Civil Engineering Licensure Exam Success Prediction</p>
+            <p className="text-sm text-gray-500 mt-2">Generated on: {formatDate(generatedOn)}</p>
+          </div>
+
+          <hr className="my-8 border-gray-200" />
+
+          {loading && <p className="text-lg text-gray-500 text-center py-8">Loading report data from Firestore...</p>}
+
+          {!loading && totalStudents === 0 && (
+            <p className="text-lg text-gray-500 text-center py-8">No prediction data available for the selected filters.</p>
+          )}
+
+          {!loading && totalStudents > 0 && (
+            <>
+              <section>
+                <h4 className="text-xl font-semibold text-[#0B2C5D] mb-4">Executive Summary</h4>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+                  <div className="rounded-2xl px-6 py-5" style={{ backgroundColor: '#f3f4f6' }}>
+                    <p className="text-sm text-gray-600">Total Students</p>
+                    <p className="text-3xl font-semibold text-[#0B2C5D] mt-2">{totalStudents}</p>
+                  </div>
+                  <div className="rounded-2xl px-6 py-5" style={{ backgroundColor: '#ecfdf3' }}>
+                    <p className="text-sm text-gray-600">Predicted Pass</p>
+                    <p className="text-3xl font-semibold text-green-700 mt-2">{predictedPass}</p>
+                  </div>
+                  <div className="rounded-2xl px-6 py-5" style={{ backgroundColor: '#fef2f2' }}>
+                    <p className="text-sm text-gray-600">Predicted Fail</p>
+                    <p className="text-3xl font-semibold text-red-700 mt-2">{predictedFail}</p>
+                  </div>
+                  <div className="rounded-2xl px-6 py-5" style={{ backgroundColor: '#eef2ff' }}>
+                    <p className="text-sm text-gray-600">Pass Rate</p>
+                    <p className="text-3xl font-semibold text-blue-700 mt-2">{passRate.toFixed(1)}%</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="mt-8">
+                <h4 className="text-xl font-semibold text-[#0B2C5D] mb-4">Risk Distribution Analysis</h4>
+                <div className="overflow-x-auto rounded-xl border border-gray-200">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        {['Risk Level', 'Count', 'Percentage', 'Recommendation'].map((header) => (
+                          <th key={header} className="text-left px-6 py-4 text-sm text-gray-700 font-semibold">{header}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {
+                          label: 'High Risk',
+                          count: highRiskCount,
+                          badgeClass: 'bg-red-100 text-red-600',
+                          recommendation: 'Immediate intervention required',
+                        },
+                        {
+                          label: 'Medium Risk',
+                          count: mediumRiskCount,
+                          badgeClass: 'bg-amber-100 text-amber-700',
+                          recommendation: 'Monitor and provide support',
+                        },
+                        {
+                          label: 'Low Risk',
+                          count: lowRiskCount,
+                          badgeClass: 'bg-green-100 text-green-700',
+                          recommendation: 'Continue regular program',
+                        },
+                      ].map((row) => (
+                        <tr key={row.label} className="border-b border-gray-200 last:border-b-0">
+                          <td className="px-6 py-5">
+                            <span className={`inline-flex rounded-full px-4 py-1 text-sm font-medium ${row.badgeClass}`}>{row.label}</span>
+                          </td>
+                          <td className="px-6 py-5 text-sm text-gray-700">{row.count}</td>
+                          <td className="px-6 py-5 text-sm text-gray-700">
+                            {totalStudents > 0 ? `${((row.count / totalStudents) * 100).toFixed(1)}%` : '0.0%'}
+                          </td>
+                          <td className="px-6 py-5 text-sm text-gray-600">{row.recommendation}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section className="mt-8">
+                <h4 className="text-xl font-semibold text-[#0B2C5D] mb-4">Strategic Recommendations</h4>
+                <div className="space-y-5">
+                  {[
+                    {
+                      title: 'Targeted Intervention Programs',
+                      body: `Implement specialized review sessions for the ${highRiskCount} high-risk students to improve their preparedness and exam readiness.`,
+                    },
+                    {
+                      title: 'Enhanced Monitoring',
+                      body: `Establish regular progress tracking for ${mediumRiskCount} medium-risk students with bi-weekly assessments and personalized guidance.`,
+                    },
+                    {
+                      title: 'Resource Allocation',
+                      body: 'Allocate additional faculty support and study materials to at-risk groups to maximize overall pass rates.',
+                    },
+                  ].map((item, index) => (
+                    <div key={item.title} className="flex items-start gap-4">
+                      <span className="h-8 w-8 rounded-full bg-amber-400 text-white text-sm font-semibold flex items-center justify-center">{index + 1}</span>
+                      <div>
+                        <p className="text-base font-semibold text-[#0B2C5D]">{item.title}</p>
+                        <p className="text-sm text-gray-600 mt-1">{item.body}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <hr className="my-8 border-gray-200" />
+
+              <footer className="text-center text-gray-500 space-y-2">
+                <p className="text-sm">University of Science and Technology of Southern Philippines (USTP)</p>
+                <p className="text-sm">LiCEnSURE - Licensure Exam Predictive System</p>
+                <p className="text-sm">This report is confidential and intended for authorized personnel only.</p>
+              </footer>
+            </>
+          )}
+        </div>
+      </section>
+
+      {error && (
+        <section className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700 text-sm">
+          {error}
+        </section>
+      )}
     </div>
   )
 }

@@ -22,6 +22,7 @@ export type CleanedRow = Record<string, CleanedRowValue>
 export interface PredictedStudentRow {
   Student_Code: string
   Student_Name: string
+  Email: string
   GWA: number
   MSTE_AVE: number
   HPGE_AVE: number
@@ -30,6 +31,7 @@ export interface PredictedStudentRow {
   probability: number
   Age: number | null
   Gender: string
+  Year_Level: string
   Exam_year: number | null
   Months_prep: number | null
   Father_Monthly_Income: string

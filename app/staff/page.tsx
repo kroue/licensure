@@ -1,7 +1,9 @@
 'use client'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight, CheckCircle2, Database, FileText, Upload, Play, Users } from 'lucide-react'
+import { useAuth } from '@/lib/auth'
+import { createAuditLog } from '@/lib/firebase'
 import { getCleanedRows, getPredictedRows, getUploadSummary, getUploadedCsvPayload, type UploadSummary } from '@/lib/upload-session'
 
 type PipelineStep = {
@@ -13,11 +15,30 @@ type PipelineStep = {
 }
 
 export default function StaffDashboard() {
+  const { user } = useAuth()
   const [uploadSummary, setUploadSummary] = useState<UploadSummary | null>(null)
   const [hasUploadedFile, setHasUploadedFile] = useState(false)
   const [cleanedCount, setCleanedCount] = useState(0)
   const [predictedCount, setPredictedCount] = useState(0)
   const [passedCount, setPassedCount] = useState(0)
+  const hasLoggedDashboardView = useRef(false)
+
+  useEffect(() => {
+    if (!user?.uid || hasLoggedDashboardView.current) return
+
+    hasLoggedDashboardView.current = true
+    void createAuditLog({
+      action: 'View Dashboard',
+      details: 'Accessed staff dashboard overview',
+      status: 'Success',
+      actor: {
+        uid: user.uid,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    })
+  }, [user])
 
   useEffect(() => {
     const summary = getUploadSummary()
