@@ -5,7 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
-import { BEST_MODEL } from '@/lib/data'
 
 type LoginLane = 'chairman' | 'staff'
 
@@ -84,19 +83,6 @@ export default function LoginPage() {
             Empowering USTP's Civil Engineering department with machine learning to identify
             at-risk students and drive data-informed decisions.
           </p>
-          <div className="mt-10 space-y-4">
-            {[
-              { label: 'Algorithm', value: 'Random Forest + SMOTE' },
-              { label: 'Accuracy', value: `${(BEST_MODEL.accuracy * 100).toFixed(1)}%` },
-              { label: 'Recall (FAILED class)', value: `${(BEST_MODEL.recall * 100).toFixed(1)}%` },
-              { label: 'ROC AUC', value: BEST_MODEL.rocAuc.toFixed(4) },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between text-sm border-b border-white/10 pb-3">
-                <span className="text-white/50">{label}</span>
-                <span className="text-white font-semibold">{value}</span>
-              </div>
-            ))}
-          </div>
         </div>
         <p className="text-white/30 text-xs">University of Science and Technology of Southern Philippines</p>
       </div>
@@ -151,33 +137,6 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {lane === 'chairman' && (
-              <p className="text-xs text-gray-500 mb-4">Use chairman@ustp.edu.ph or dean@ustp.edu.ph.</p>
-            )}
-
-            {lane === 'staff' && (
-              <p className="text-xs text-gray-500 mb-4">Use a staff Firebase account created by Chairman / Dean.</p>
-            )}
-
-            {lane === 'chairman' && (
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <button
-                  type="button"
-                  onClick={() => fillAccount(CHAIRMAN_ACCOUNT)}
-                  className="text-xs py-2 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Fill Chairman
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillAccount(DEAN_ACCOUNT)}
-                  className="text-xs py-2 px-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Fill Dean
-                </button>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address</label>
@@ -206,11 +165,6 @@ export default function LoginPage() {
                 {loading ? 'Signing in…' : 'Sign In'}
               </button>
             </form>
-            {!authLoading && (
-              <p className="mt-4 text-xs text-gray-500">
-                Sign in using Firebase accounts. Chairman and Dean can create staff accounts in User Accounts.
-              </p>
-            )}
           </div>
           <p className="text-center text-gray-400 text-xs mt-6">
             USTP – Civil Engineering Department · LiCEnSURE System

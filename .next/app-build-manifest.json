@@ -55,6 +55,36 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/staff/students/page.js"
+    ],
+    "/chairman/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/chairman/page.js"
+    ],
+    "/chairman/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/chairman/layout.js"
+    ],
+    "/chairman/predictions/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/chairman/predictions/page.js"
+    ],
+    "/chairman/reports/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/chairman/reports/page.js"
+    ],
+    "/chairman/audit/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/chairman/audit/page.js"
+    ],
+    "/chairman/users/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/chairman/users/page.js"
     ]
   }
 }

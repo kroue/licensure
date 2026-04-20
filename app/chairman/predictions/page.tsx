@@ -315,47 +315,47 @@ function PredictionDetailsModal({ row, onClose }: { row: DisplayRow; onClose: ()
 
   return (
     <div className="fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-6xl max-h-[92vh] overflow-y-auto rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
-        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-8 py-5 flex items-center justify-between">
-          <h2 className="text-3xl font-medium text-[#0B2C5D] inline-flex items-center gap-3">
-            <BarChart3 className="h-7 w-7" />
+      <div className="w-full max-w-4xl max-h-[88vh] overflow-y-auto rounded-2xl bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-4 flex items-center justify-between sm:px-6">
+          <h2 className="text-xl font-semibold text-[#0B2C5D] inline-flex items-center gap-2 sm:text-2xl">
+            <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6" />
             Student Prediction Analysis
           </h2>
           <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="px-8 py-7 space-y-8">
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8 text-[#0B2C5D]">
+        <div className="px-5 py-5 space-y-6 sm:px-6">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-5 text-[#0B2C5D]">
             <div>
-              <p className="text-3xl text-gray-600">Student ID</p>
-              <p className="text-4xl font-medium mt-2">{row.studentId}</p>
+              <p className="text-sm text-gray-600">Student ID</p>
+              <p className="text-lg font-semibold mt-1">{row.studentId}</p>
             </div>
             <div>
-              <p className="text-3xl text-gray-600">Full Name</p>
-              <p className="text-4xl font-medium mt-2">{row.name}</p>
+              <p className="text-sm text-gray-600">Full Name</p>
+              <p className="text-lg font-semibold mt-1">{row.name}</p>
             </div>
             <div>
-              <p className="text-3xl text-gray-600">Email</p>
-              <p className="text-4xl font-medium mt-2 break-all">{row.email}</p>
+              <p className="text-sm text-gray-600">Email</p>
+              <p className="text-lg font-semibold mt-1 break-all">{row.email}</p>
             </div>
             <div>
-              <p className="text-3xl text-gray-600">Year Level</p>
-              <p className="text-4xl font-medium mt-2">{row.yearLevel}</p>
+              <p className="text-sm text-gray-600">Year Level</p>
+              <p className="text-lg font-semibold mt-1">{row.yearLevel}</p>
             </div>
             <div>
-              <p className="text-3xl text-gray-600">GPA</p>
-              <p className="text-4xl font-medium mt-2">{row.gpa.toFixed(1)}</p>
+              <p className="text-sm text-gray-600">GPA</p>
+              <p className="text-lg font-semibold mt-1">{row.gpa.toFixed(1)}</p>
             </div>
           </section>
 
-          <section className="border-t border-gray-200 pt-7">
-            <h3 className="text-4xl font-medium text-[#0B2C5D] mb-6">Prediction Result</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <section className="border-t border-gray-200 pt-5">
+            <h3 className="text-xl font-semibold text-[#0B2C5D] mb-4">Prediction Result</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-3xl text-gray-600 mb-3">Predicted Outcome</p>
-                <span className={`inline-flex rounded-2xl px-6 py-3 text-3xl font-medium ${
+                <p className="text-sm text-gray-600 mb-2">Predicted Outcome</p>
+                <span className={`inline-flex rounded-xl px-4 py-2 text-base font-semibold ${
                   row.prediction === 'PASSED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                 }`}>
                   {row.prediction === 'PASSED' ? 'Pass' : 'Fail'}
@@ -363,27 +363,27 @@ function PredictionDetailsModal({ row, onClose }: { row: DisplayRow; onClose: ()
               </div>
 
               <div>
-                <p className="text-3xl text-gray-600 mb-3">Prediction Confidence</p>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-5 rounded-full bg-gray-200 overflow-hidden">
-                    <div className="h-5 rounded-full" style={{ width: `${confidencePct}%`, backgroundColor: '#0B2C5D' }} />
+                <p className="text-sm text-gray-600 mb-2">Prediction Confidence</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-3 rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-3 rounded-full" style={{ width: `${confidencePct}%`, backgroundColor: '#0B2C5D' }} />
                   </div>
-                  <span className="text-4xl font-medium text-[#0B2C5D]">{confidencePct}%</span>
+                  <span className="text-lg font-semibold text-[#0B2C5D]">{confidencePct}%</span>
                 </div>
               </div>
             </div>
           </section>
 
-          <section className="border-t border-gray-200 pt-7">
-            <h3 className="text-4xl font-medium text-[#0B2C5D] mb-3 inline-flex items-center gap-3">
-              <TrendingUp className="h-7 w-7" />
+          <section className="border-t border-gray-200 pt-5">
+            <h3 className="text-xl font-semibold text-[#0B2C5D] mb-2 inline-flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
               Contributing Predictors
             </h3>
-            <p className="text-3xl text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 mb-4">
               The following factors contributed to this student's prediction classification, ranked by importance:
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {predictors.map((predictor) => {
                 const badgeClass = predictor.impact === 'positive'
                   ? 'bg-green-100 text-green-700'
@@ -400,19 +400,19 @@ function PredictionDetailsModal({ row, onClose }: { row: DisplayRow; onClose: ()
                 return (
                   <div key={predictor.key}>
                     <div className="flex items-center justify-between mb-2">
-                      <div className="inline-flex items-center gap-3">
-                        <span className="text-4xl font-medium text-[#0B2C5D]">{predictor.label}</span>
-                        <span className={`rounded-lg px-3 py-1 text-2xl ${badgeClass}`}>
+                      <div className="inline-flex items-center gap-2">
+                        <span className="text-lg font-semibold text-[#0B2C5D]">{predictor.label}</span>
+                        <span className={`rounded-lg px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}>
                           {predictor.impact === 'positive' ? 'Positive' : predictor.impact === 'neutral' ? 'Neutral' : 'Negative'}
                         </span>
                       </div>
-                      <span className="text-3xl text-[#0B2C5D]">{predictor.valueLabel}</span>
+                      <span className="text-base font-medium text-[#0B2C5D]">{predictor.valueLabel}</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1 h-4 rounded-full bg-gray-200 overflow-hidden">
-                        <div className="h-4 rounded-full" style={{ width: `${Math.round(predictor.score * 100)}%`, backgroundColor: barColor }} />
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 h-3 rounded-full bg-gray-200 overflow-hidden">
+                        <div className="h-3 rounded-full" style={{ width: `${Math.round(predictor.score * 100)}%`, backgroundColor: barColor }} />
                       </div>
-                      <span className="text-2xl text-gray-500 w-14 text-right">{Math.round(predictor.score * 100)}%</span>
+                      <span className="text-sm text-gray-500 w-12 text-right">{Math.round(predictor.score * 100)}%</span>
                     </div>
                   </div>
                 )
@@ -420,16 +420,16 @@ function PredictionDetailsModal({ row, onClose }: { row: DisplayRow; onClose: ()
             </div>
           </section>
 
-          <section className="rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-[#0B2C5D] text-3xl leading-relaxed">
+          <section className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[#0B2C5D] text-sm leading-relaxed">
             <span className="font-semibold">Interpretation:</span> This prediction is based on machine learning analysis of multiple academic performance indicators. The model evaluates key factors including GPA, subject-specific grades, and preparation signals to generate the prediction.
           </section>
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-8 py-5 flex justify-end">
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-5 py-4 flex justify-end sm:px-6">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl px-8 py-3 text-2xl font-medium text-white"
+            className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white"
             style={{ backgroundColor: '#0B2C5D' }}
           >
             Close

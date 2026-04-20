@@ -1,7 +1,8 @@
 {
-  "/staff/page": "app/staff/page.js",
-  "/staff/processing/page": "app/staff/processing/page.js",
-  "/staff/predict/page": "app/staff/predict/page.js",
-  "/staff/summary/page": "app/staff/summary/page.js",
-  "/staff/students/page": "app/staff/students/page.js"
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/chairman/users/page": "app/chairman/users/page.js",
+  "/chairman/reports/page": "app/chairman/reports/page.js",
+  "/chairman/page": "app/chairman/page.js",
+  "/chairman/predictions/page": "app/chairman/predictions/page.js"
 }

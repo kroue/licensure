@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BarChart3, ShieldCheck, Brain } from 'lucide-react'
+import { BarChart3, ShieldCheck, TrendingUp, GraduationCap } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -63,18 +63,39 @@ export default function LandingPage() {
         </Link>
 
         {/* Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 max-w-4xl w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mt-16 max-w-6xl w-full">
           {[
-            { icon: Brain, title: 'ML-Powered Predictions', desc: 'Random Forest model with SMOTE, trained on USTP Civil Engineering graduate data.' },
-            { icon: ShieldCheck, title: 'Early Risk Detection', desc: 'Identify at-risk students before exam day for timely academic intervention.' },
-            { icon: BarChart3, title: 'Institutional Insights', desc: 'Dashboards and reports for department chairs and academic administrators.' },
+            {
+              icon: BarChart3,
+              title: 'Predictive Analytics',
+              desc: 'Machine learning models analyze student data to predict exam outcomes',
+            },
+            {
+              icon: ShieldCheck,
+              title: 'Risk Identification',
+              desc: 'Early detection of at-risk students for targeted intervention',
+            },
+            {
+              icon: TrendingUp,
+              title: 'Institutional Insights',
+              desc: 'Strategic dashboards for academic leaders and decision-makers',
+            },
+            {
+              icon: GraduationCap,
+              title: 'Academic Excellence',
+              desc: 'Data-driven approach to improve licensure exam pass rates',
+            },
           ].map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="rounded-xl p-6 text-left" style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(242,183,5,0.15)' }}>
-                <Icon className="w-5 h-5" style={{ color: '#F2B705' }} />
+            <div
+              key={title}
+              className="rounded-2xl px-6 py-6 text-center"
+              style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)' }}
+            >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: '#F2B705' }}>
+                <Icon className="w-5 h-5" style={{ color: '#0B2C5D' }} />
               </div>
-              <h3 className="text-white font-semibold mb-2">{title}</h3>
-              <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
+              <h3 className="text-white font-semibold text-xl mb-2">{title}</h3>
+              <p className="text-white/80 text-base leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
