@@ -9,6 +9,7 @@ import {
   getPredictionRowsAnalyticsByRunId,
   type PredictionRowAnalytics,
 } from '@/lib/firebase'
+import { getRiskLevel } from '@/lib/risk'
 
 type RiskLevelFilter = 'ALL' | 'HIGH' | 'MEDIUM' | 'LOW'
 
@@ -21,7 +22,7 @@ type DisplayRow = {
   gpa: number
   prediction: 'PASSED' | 'FAILED'
   confidence: number
-  riskLevel: 'HIGH' | 'MEDIUM' | 'LOW'
+  riskLevel: 'HIGH' | 'MEDIUM' | 'LOW' | 'N/A'
   raw: Record<string, unknown>
   predictors: PredictorItem[]
 }
@@ -54,8 +55,9 @@ function toDisplayRow(source: PredictionRowAnalytics, index: number): DisplayRow
   const prediction: 'PASSED' | 'FAILED' = predictionRaw === 'FAILED' ? 'FAILED' : 'PASSED'
   const probability = toNumber(student['probability']) ?? 0
   const confidence = Math.max(probability, 1 - probability)
-  const riskScore = prediction === 'FAILED' ? probability : 1 - probability
-  const riskLevel: 'HIGH' | 'MEDIUM' | 'LOW' = riskScore >= 0.7 ? 'HIGH' : riskScore >= 0.4 ? 'MEDIUM' : 'LOW'
+  const risk = getRiskLevel(prediction, probability)
+  const riskLevel: 'HIGH' | 'MEDIUM' | 'LOW' | 'N/A' =
+    risk === 'High Risk' ? 'HIGH' : risk === 'Medium Risk' ? 'MEDIUM' : risk === 'Low Risk' ? 'LOW' : 'N/A'
 
   const yearLevelRaw = student['Year_Level'] ?? student['YearLevel'] ?? student['yearLevel']
   const examYear = student['Exam_year'] ?? student['examYear']

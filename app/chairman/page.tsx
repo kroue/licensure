@@ -55,26 +55,37 @@ export default function ChairmanDashboard() {
       })
     }
 
+    let isMounted = true
+
     const loadDashboard = async () => {
       try {
-        setLoading(true)
+        if (isMounted) setLoading(true)
         const latest = await getLatestPredictionRunAnalytics({ uid: user.uid, role: user.role })
-        setLatestRun(latest)
+        if (isMounted) setLatestRun(latest)
 
         if (latest?.id) {
           const rows = await getPredictionRowsAnalyticsByRunId(latest.id, { uid: user.uid, role: user.role })
-          setRowAnalytics(rows)
+          if (isMounted) setRowAnalytics(rows)
         } else {
-          setRowAnalytics([])
+          if (isMounted) setRowAnalytics([])
         }
       } catch (loadError) {
-        setError(loadError instanceof Error ? loadError.message : 'Unable to load dashboard analytics.')
+        if (isMounted) setError(loadError instanceof Error ? loadError.message : 'Unable to load dashboard analytics.')
       } finally {
-        setLoading(false)
+        if (isMounted) setLoading(false)
       }
     }
 
     void loadDashboard()
+
+    const pollId = window.setInterval(() => {
+      void loadDashboard()
+    }, 15000)
+
+    return () => {
+      isMounted = false
+      window.clearInterval(pollId)
+    }
   }, [user?.role, user?.uid])
 
   const confidenceBuckets = useMemo<ConfidenceBucket[]>(() => {
@@ -100,10 +111,7 @@ export default function ChairmanDashboard() {
     const total = latestRun?.totalAnalyzed ?? 0
     const passRate = latestRun?.passRate ?? 0
     const atRisk = latestRun?.failedCount ?? 0
-    const fallbackAccuracy = rowAnalytics.length > 0
-      ? (rowAnalytics.reduce((sum, row) => sum + getConfidence(row), 0) / rowAnalytics.length) * 100
-      : 0
-    const modelAccuracy = latestRun?.modelAccuracy ?? fallbackAccuracy
+    const modelAccuracy = typeof latestRun?.modelAccuracy === 'number' ? latestRun.modelAccuracy : 0
 
     return {
       total,

@@ -9,15 +9,18 @@ import {
   getPredictionRowsAnalyticsByRunId,
   type PredictionRowAnalytics,
 } from '@/lib/firebase'
+import { getRiskLevel, normalizeProbability } from '@/lib/risk'
 
 type RiskCategory = 'All Risk Levels' | 'High Risk' | 'Medium Risk' | 'Low Risk'
 
 type ReportRow = {
+  studentCode: string
+  studentName: string
   cohortYear: string
   yearLevel: string
   prediction: 'PASSED' | 'FAILED'
   probability: number
-  riskLevel: 'High Risk' | 'Medium Risk' | 'Low Risk'
+  riskLevel: 'High Risk' | 'Medium Risk' | 'Low Risk' | 'N/A'
 }
 
 function toNumber(value: unknown): number | null {
@@ -39,18 +42,64 @@ function toReportRow(source: PredictionRowAnalytics): ReportRow {
   const student = source.student as Record<string, unknown>
   const predictionRaw = toText(student['prediction'], 'PASSED').toUpperCase()
   const prediction: 'PASSED' | 'FAILED' = predictionRaw === 'FAILED' ? 'FAILED' : 'PASSED'
-  const probability = toNumber(student['probability']) ?? 0
-  const riskScore = prediction === 'FAILED' ? probability : 1 - probability
-  const riskLevel: 'High Risk' | 'Medium Risk' | 'Low Risk' =
-    riskScore >= 0.7 ? 'High Risk' : riskScore >= 0.4 ? 'Medium Risk' : 'Low Risk'
+  const probability = normalizeProbability(toNumber(student['probability']) ?? 0)
+  const riskLevel = getRiskLevel(prediction, probability)
 
   return {
+    studentCode: toText(student['Student_Code'] ?? student['studentId'], 'N/A'),
+    studentName: toText(student['Student_Name'] ?? student['name'], 'Unknown Student'),
     cohortYear: toText(student['Exam_year'] ?? student['Cohort_Year'] ?? student['cohortYear'], 'Unknown'),
     yearLevel: toText(student['Year_Level'] ?? student['YearLevel'] ?? student['yearLevel'], 'All Year Levels'),
     prediction,
     probability,
     riskLevel,
   }
+}
+
+function confidencePct(probability: number): string {
+  return `${Math.round(probability * 100)}%`
+}
+
+function drawSimpleTable(
+  pdf: any,
+  startY: number,
+  columns: string[],
+  rows: string[][],
+): number {
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  const left = 40
+  const right = pageWidth - 40
+  const width = right - left
+  const rowHeight = 18
+  const colWidth = width / columns.length
+  let y = startY
+
+  const ensurePage = () => {
+    if (y + rowHeight > pageHeight - 40) {
+      pdf.addPage()
+      y = 40
+    }
+  }
+
+  ensurePage()
+  pdf.setFont('helvetica', 'bold')
+  columns.forEach((header, idx) => {
+    pdf.text(header, left + idx * colWidth + 4, y + 12)
+  })
+  y += rowHeight
+
+  pdf.setFont('helvetica', 'normal')
+  rows.forEach((row) => {
+    ensurePage()
+    row.forEach((value, idx) => {
+      const clipped = value.length > 36 ? `${value.slice(0, 33)}...` : value
+      pdf.text(clipped, left + idx * colWidth + 4, y + 12)
+    })
+    y += rowHeight
+  })
+
+  return y + 6
 }
 
 function formatDate(dateText: string): string {
@@ -155,9 +204,11 @@ export default function ReportsPage() {
   const predictedPass = filteredRows.filter((row) => row.prediction === 'PASSED').length
   const predictedFail = totalStudents - predictedPass
   const passRate = totalStudents > 0 ? (predictedPass / totalStudents) * 100 : 0
-  const highRiskCount = filteredRows.filter((row) => row.riskLevel === 'High Risk').length
-  const mediumRiskCount = filteredRows.filter((row) => row.riskLevel === 'Medium Risk').length
-  const lowRiskCount = filteredRows.filter((row) => row.riskLevel === 'Low Risk').length
+  const failedRows = filteredRows.filter((row) => row.prediction === 'FAILED')
+  const passedRows = filteredRows.filter((row) => row.prediction === 'PASSED')
+  const highRiskCount = failedRows.filter((row) => row.riskLevel === 'High Risk').length
+  const mediumRiskCount = failedRows.filter((row) => row.riskLevel === 'Medium Risk').length
+  const lowRiskCount = failedRows.filter((row) => row.riskLevel === 'Low Risk').length
 
   const handlePrint = () => {
     if (user?.uid) {
@@ -178,40 +229,82 @@ export default function ReportsPage() {
   }
 
   const handleDownloadPdf = async () => {
-    if (!reportRef.current || totalStudents === 0) return
+    if (totalStudents === 0) return
 
     try {
       setDownloading(true)
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ])
+      const { jsPDF } = await import('jspdf')
+      const pdf = new jsPDF('p', 'pt', 'a4')
 
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
+      let y = 42
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(16)
+      pdf.text('LiCEnSURE Predictive Report', 40, y)
+      y += 20
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(11)
+      pdf.text(`Cohort: ${cohortYear} | Year Level: ${yearLevel} | Risk Filter: ${riskCategory}`, 40, y)
+      y += 16
+      pdf.text(`Generated on: ${formatDate(generatedOn)}`, 40, y)
+      y += 20
+      pdf.text(`Total Students: ${totalStudents} | Predicted Pass: ${predictedPass} | Predicted Fail: ${predictedFail}`, 40, y)
+      y += 24
+
+      const failedByRisk: Array<{ title: 'High Risk' | 'Medium Risk' | 'Low Risk'; rows: ReportRow[] }> = [
+        { title: 'High Risk', rows: failedRows.filter((row) => row.riskLevel === 'High Risk') },
+        { title: 'Medium Risk', rows: failedRows.filter((row) => row.riskLevel === 'Medium Risk') },
+        { title: 'Low Risk', rows: failedRows.filter((row) => row.riskLevel === 'Low Risk') },
+      ]
+
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(12)
+      pdf.text('FAILED Students Grouped by Risk Level', 40, y)
+      y += 14
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(10)
+
+      failedByRisk.forEach((group) => {
+        pdf.setFont('helvetica', 'bold')
+        pdf.text(`${group.title} (${group.rows.length})`, 40, y)
+        y += 10
+        pdf.setFont('helvetica', 'normal')
+
+        if (group.rows.length === 0) {
+          pdf.text('No students in this risk group.', 44, y)
+          y += 16
+          return
+        }
+
+        y = drawSimpleTable(
+          pdf,
+          y,
+          ['Student Code', 'Student Name', 'Year Level', 'Failure Confidence'],
+          group.rows.map((row) => [row.studentCode, row.studentName, row.yearLevel, confidencePct(row.probability)]),
+        )
       })
 
-      const imageData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'pt', 'a4')
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const imgWidth = pageWidth - 40
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      const printableHeight = pageHeight - 40
-
-      let heightLeft = imgHeight
-      let position = 20
-
-      pdf.addImage(imageData, 'PNG', 20, position, imgWidth, imgHeight)
-      heightLeft -= printableHeight
-
-      while (heightLeft > 0) {
-        position = 20 - (imgHeight - heightLeft)
+      if (y > pdf.internal.pageSize.getHeight() - 80) {
         pdf.addPage()
-        pdf.addImage(imageData, 'PNG', 20, position, imgWidth, imgHeight)
-        heightLeft -= printableHeight
+        y = 40
+      }
+
+      pdf.setFont('helvetica', 'bold')
+      pdf.setFontSize(12)
+      pdf.text(`PASSED Students (${passedRows.length})`, 40, y)
+      y += 14
+      pdf.setFont('helvetica', 'normal')
+      pdf.setFontSize(10)
+
+      if (passedRows.length === 0) {
+        pdf.text('No students predicted as PASSED.', 44, y)
+        y += 16
+      } else {
+        y = drawSimpleTable(
+          pdf,
+          y,
+          ['Student Code', 'Student Name', 'Year Level', 'Pass Confidence'],
+          passedRows.map((row) => [row.studentCode, row.studentName, row.yearLevel, confidencePct(row.probability)]),
+        )
       }
 
       const safeCohort = cohortYear.replace(/[^a-zA-Z0-9_-]/g, '-')
@@ -414,7 +507,7 @@ export default function ReportsPage() {
                           </td>
                           <td className="px-6 py-5 text-sm text-gray-700">{row.count}</td>
                           <td className="px-6 py-5 text-sm text-gray-700">
-                            {totalStudents > 0 ? `${((row.count / totalStudents) * 100).toFixed(1)}%` : '0.0%'}
+                            {predictedFail > 0 ? `${((row.count / predictedFail) * 100).toFixed(1)}%` : '0.0%'}
                           </td>
                           <td className="px-6 py-5 text-sm text-gray-600">{row.recommendation}</td>
                         </tr>

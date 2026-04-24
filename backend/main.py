@@ -10,12 +10,12 @@ from uuid import uuid4
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline
 from pydantic import BaseModel
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
 RANDOM_STATE = 42
@@ -138,6 +138,7 @@ app = FastAPI(title="LiCEnSURE Python Backend", version="2.0.0")
 _model_lock = Lock()
 _upload_lock = Lock()
 _trained_pipeline: Pipeline | None = None
+_model_accuracy_pct: float | None = None
 _upload_store: dict[str, UploadRecord] = {}
 
 
@@ -272,10 +273,20 @@ def clean_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
         missing_count = 0
 
         for column in REQUIRED_COLUMNS:
-            normalized = normalize_value(column, row.get(column))
+            raw_value = row.get(column)
+            normalized = normalize_value(column, raw_value)
             normalized_row[column] = normalized
             if normalized in (None, "") and column not in OPTIONAL_MISSING_COLUMNS:
                 missing_count += 1
+
+            if (
+                column in NUMERIC_COLUMNS
+                and raw_value is not None
+                and str(raw_value).strip() != ""
+                and normalized is None
+            ):
+                row_issues.append(f"{column} contains invalid numeric value and could not be parsed.")
+
             if column == "Gender" and normalized not in (None, "Male", "Female"):
                 row_issues.append("Gender should be Male/Female.")
 
@@ -293,7 +304,7 @@ def clean_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
 
 
 def ensure_training_model() -> Pipeline:
-    global _trained_pipeline
+    global _trained_pipeline, _model_accuracy_pct
     with _model_lock:
         if _trained_pipeline is not None:
             return _trained_pipeline
@@ -316,11 +327,16 @@ def ensure_training_model() -> Pipeline:
         for column in FEATURE_COLUMNS:
             df[column] = df[column].map(lambda v: normalize_value(column, v))
 
-        X = df[FEATURE_COLUMNS].copy()
-        y = df["Fail"].astype(int).copy()
+        X_full = df[FEATURE_COLUMNS].copy()
+        y_full = df["Fail"].astype(int).copy()
 
         num_cols = [c for c in FEATURE_COLUMNS if c in NUMERIC_COLUMNS]
         cat_cols = [c for c in FEATURE_COLUMNS if c not in NUMERIC_COLUMNS]
+
+        try:
+            encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
+        except TypeError:
+            encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
 
         preprocessor = ColumnTransformer(
             transformers=[
@@ -330,7 +346,7 @@ def ensure_training_model() -> Pipeline:
                     Pipeline(
                         steps=[
                             ("imputer", SimpleImputer(strategy="most_frequent")),
-                            ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+                            ("encoder", encoder),
                         ]
                     ),
                     cat_cols,
@@ -340,11 +356,12 @@ def ensure_training_model() -> Pipeline:
 
         classifier = RandomForestClassifier(
             n_estimators=500,
-            max_depth=15,
+            max_depth=20,
             min_samples_split=2,
             min_samples_leaf=1,
             max_features="sqrt",
-            class_weight="balanced_subsample",
+            bootstrap=True,
+            class_weight="balanced",
             random_state=RANDOM_STATE,
             n_jobs=-1,
         )
@@ -352,14 +369,35 @@ def ensure_training_model() -> Pipeline:
         pipeline = Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
-                ("smote", SMOTE(random_state=RANDOM_STATE)),
                 ("model", classifier),
             ]
         )
 
-        pipeline.fit(X, y)
+        # Mirror the new notebook validation setup with stratified 10-fold accuracy.
+        cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=RANDOM_STATE)
+        scores = cross_val_score(pipeline, X_full, y_full, scoring="accuracy", cv=cv, n_jobs=-1)
+        _model_accuracy_pct = float(np.nanmean(scores) * 100.0)
+
+        # Fit final model on full dataset for inference after cross-validation.
+        pipeline.fit(X_full, y_full)
+
         _trained_pipeline = pipeline
         return _trained_pipeline
+
+
+def get_model_accuracy_pct() -> float:
+    if _trained_pipeline is None:
+        ensure_training_model()
+    return float(_model_accuracy_pct or 0.0)
+
+
+def failed_risk_level(probability: float) -> str:
+    percentage = max(0.0, min(1.0, probability)) * 100.0
+    if percentage >= 80.0:
+        return "High Risk"
+    if percentage >= 50.0:
+        return "Medium Risk"
+    return "Low Risk"
 
 
 def parse_csv(csv_text: str) -> pd.DataFrame:
@@ -517,6 +555,9 @@ def processing(request: ProcessingRequest) -> dict[str, Any]:
             "uploadId": request.uploadId,
             "processedRows": 0,
             "missingRows": record.validation_result["issueRows"],
+            "imputedValues": 0,
+            "duplicatesRemoved": 0,
+            "typeCoercionIssues": 0,
             "numericFeatures": 0,
             "categoricalFeatures": 0,
             "encodedFeatureCount": 0,
@@ -528,6 +569,38 @@ def processing(request: ProcessingRequest) -> dict[str, Any]:
             ],
         }
 
+    raw_total = len(cleaned)
+    dedupe_subset = ["Student_Code"] if "Student_Code" in cleaned.columns else None
+    cleaned = cleaned.drop_duplicates(subset=dedupe_subset, keep="first")
+    duplicates_removed = max(0, raw_total - len(cleaned))
+
+    imputed_values = 0
+    for column in FEATURE_COLUMNS:
+        if column not in cleaned.columns:
+            continue
+
+        missing_before = int(cleaned[column].isna().sum())
+        if missing_before == 0:
+            continue
+
+        if column in NUMERIC_COLUMNS:
+            fill_value = cleaned[column].median()
+            if pd.isna(fill_value):
+                fill_value = 0.0
+        else:
+            mode = cleaned[column].mode(dropna=True)
+            fill_value = mode.iloc[0] if not mode.empty else "Unknown"
+
+        cleaned[column] = cleaned[column].fillna(fill_value)
+        imputed_values += missing_before
+
+    type_coercion_issues = 0
+    for issue in record.validation_result.get("issues", []):
+        messages = issue.get("messages", []) if isinstance(issue, dict) else []
+        for message in messages:
+            if isinstance(message, str) and "invalid numeric value" in message:
+                type_coercion_issues += 1
+
     numeric_cols = [col for col in FEATURE_COLUMNS if col in NUMERIC_COLUMNS]
     categorical_cols = [col for col in FEATURE_COLUMNS if col not in NUMERIC_COLUMNS]
 
@@ -538,6 +611,9 @@ def processing(request: ProcessingRequest) -> dict[str, Any]:
         "uploadId": request.uploadId,
         "processedRows": len(cleaned),
         "missingRows": int(record.validation_result["issueRows"]),
+        "imputedValues": imputed_values,
+        "duplicatesRemoved": duplicates_removed,
+        "typeCoercionIssues": type_coercion_issues,
         "numericFeatures": len(numeric_cols),
         "categoricalFeatures": len(categorical_cols),
         "encodedFeatureCount": encoded_feature_count,
@@ -600,6 +676,7 @@ def predict(request: PredictRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail="No rows provided for prediction.")
 
     pipeline = ensure_training_model()
+    model_accuracy_pct = get_model_accuracy_pct()
     input_df = pd.DataFrame(rows)
 
     for column in REQUIRED_COLUMNS:
@@ -617,6 +694,7 @@ def predict(request: PredictRequest) -> dict[str, Any]:
     for idx, row in input_df.iterrows():
         failed_prob = float(max(0.0, min(1.0, y_proba[idx])))
         label = "FAILED" if int(y_pred[idx]) == 1 else "PASSED"
+        confidence = failed_prob if label == "FAILED" else (1.0 - failed_prob)
         predictions.append(
             {
                 "Student_Code": str(row.get("Student_Code", "") or "").strip(),
@@ -630,7 +708,8 @@ def predict(request: PredictRequest) -> dict[str, Any]:
                 "HPGE_AVE": float(row.get("HPGE_AVE") or 0),
                 "PSAD_AVE": float(row.get("PSAD_AVE") or 0),
                 "prediction": label,
-                "probability": failed_prob if label == "FAILED" else (1.0 - failed_prob),
+                "probability": confidence,
+                "riskLevel": failed_risk_level(confidence) if label == "FAILED" else None,
                 "Age": row.get("Age"),
                 "Gender": row.get("Gender") or "Unknown",
                 "Year_Level": str(row.get("Year_Level") or "4th Year"),
@@ -643,4 +722,4 @@ def predict(request: PredictRequest) -> dict[str, Any]:
             }
         )
 
-    return {"predictions": predictions}
+    return {"predictions": predictions, "modelAccuracy": round(model_accuracy_pct, 2)}

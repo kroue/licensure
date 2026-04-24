@@ -26,12 +26,16 @@ const staffNav: NavItem[] = [
   { href: '/staff/students', label: 'Manage Records', icon: Database },
 ]
 
+const facultyNav: NavItem[] = [
+  { href: '/staff/predict', label: 'Student Prediction', icon: Brain },
+]
+
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { role, user, sessionStartedAt, logout } = useAuth()
-  const nav = role === 'chairman' ? chairmanNav : staffNav
-  const roleLabel = role === 'chairman' ? 'Chairman / Dean' : 'Staff'
+  const nav = role === 'chairman' ? chairmanNav : role === 'faculty' ? facultyNav : staffNav
+  const roleLabel = role === 'chairman' ? 'Chairman / Dean' : role === 'faculty' ? 'Faculty' : 'Staff'
   const startedLabel = sessionStartedAt
     ? new Date(sessionStartedAt).toLocaleString('en-PH', {
         year: 'numeric',

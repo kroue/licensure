@@ -34,6 +34,7 @@ const INITIAL_FORM: UserForm = {
 function badgeForRole(role: ManagedUserRole): { bg: string; text: string } {
   if (role === 'Chairman') return { bg: '#eadcf9', text: '#7e22ce' }
   if (role === 'Dean') return { bg: '#efe5ff', text: '#9333ea' }
+  if (role === 'Faculty') return { bg: '#d1fae5', text: '#047857' }
   return { bg: '#dbeafe', text: '#2563eb' }
 }
 
@@ -407,6 +408,7 @@ export default function UsersPage() {
                   >
                     <option>Chairman</option>
                     <option>Dean</option>
+                    <option>Faculty</option>
                     <option>Staff</option>
                   </select>
                 </div>

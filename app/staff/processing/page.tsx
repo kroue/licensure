@@ -31,6 +31,7 @@ export default function ProcessingPage() {
     processedRows: number
     missingRows: number
     duplicatesRemoved: number
+    typeCoercionIssues: number
     numericFeatures: number
     categoricalFeatures: number
     encodedFeatureCount: number
@@ -74,6 +75,9 @@ export default function ProcessingPage() {
       const backendPayload = await response.json() as {
         processedRows?: number
         missingRows?: number
+        imputedValues?: number
+        duplicatesRemoved?: number
+        typeCoercionIssues?: number
         numericFeatures?: number
         categoricalFeatures?: number
         encodedFeatureCount?: number
@@ -86,8 +90,9 @@ export default function ProcessingPage() {
 
       setProcessingStats({
         processedRows: backendPayload.processedRows ?? 0,
-        missingRows: backendPayload.missingRows ?? 0,
-        duplicatesRemoved: 0,
+        missingRows: backendPayload.imputedValues ?? backendPayload.missingRows ?? 0,
+        duplicatesRemoved: backendPayload.duplicatesRemoved ?? 0,
+        typeCoercionIssues: backendPayload.typeCoercionIssues ?? 0,
         numericFeatures: backendPayload.numericFeatures ?? 0,
         categoricalFeatures: backendPayload.categoricalFeatures ?? 0,
         encodedFeatureCount: backendPayload.encodedFeatureCount ?? 0,
@@ -97,8 +102,8 @@ export default function ProcessingPage() {
         uploadId: payload.uploadId,
         cleanedAndEncoded: true,
         processedRows: backendPayload.processedRows ?? 0,
-        missingRows: backendPayload.missingRows ?? 0,
-        duplicatesRemoved: 0,
+        missingRows: backendPayload.imputedValues ?? backendPayload.missingRows ?? 0,
+        duplicatesRemoved: backendPayload.duplicatesRemoved ?? 0,
         encodedFeatureCount:
           backendPayload.encodedFeatureCount ??
           ((backendPayload.numericFeatures ?? 0) + (backendPayload.categoricalFeatures ?? 0)),
@@ -184,7 +189,7 @@ export default function ProcessingPage() {
           <div className="mb-5 grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { label: 'Processed Rows', value: processingStats.processedRows },
-              { label: 'Missing Values Fixed', value: processingStats.missingRows },
+              { label: 'Values Imputed', value: processingStats.missingRows },
               { label: 'Duplicates Removed', value: processingStats.duplicatesRemoved },
               { label: 'Fields Encoded', value: processingStats.encodedFeatureCount || (processingStats.numericFeatures + processingStats.categoricalFeatures) },
             ].map((item) => (
@@ -200,6 +205,11 @@ export default function ProcessingPage() {
           <div>
             <p className="text-base font-semibold text-green-800">Data Cleaning Complete</p>
             <p className="text-sm text-green-700 mt-1">All data has been successfully cleaned and encoded. The dataset is now ready for prediction processing.</p>
+            {processingStats.typeCoercionIssues > 0 && (
+              <p className="text-sm text-amber-700 mt-2">
+                {processingStats.typeCoercionIssues} value(s) had invalid numeric formats and were handled during cleaning.
+              </p>
+            )}
           </div>
         </div>
 

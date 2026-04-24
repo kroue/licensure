@@ -36,7 +36,7 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 
-export type ManagedUserRole = 'Chairman' | 'Dean' | 'Staff'
+export type ManagedUserRole = 'Chairman' | 'Dean' | 'Staff' | 'Faculty'
 export type ManagedUserStatus = 'Active' | 'Inactive'
 
 export interface ManagedUserRecord {
@@ -68,7 +68,7 @@ export interface PredictionRunAnalytics {
     uid: string
     email: string
     name: string
-    role: 'chairman' | 'staff'
+    role: 'chairman' | 'staff' | 'faculty'
   }
 }
 
@@ -82,7 +82,7 @@ export interface UploadHistoryAnalytics {
     uid: string
     email: string
     name: string
-    role: 'chairman' | 'staff'
+    role: 'chairman' | 'staff' | 'faculty'
   }
 }
 
@@ -95,7 +95,7 @@ export interface PredictionRowAnalytics {
     uid: string
     email: string
     name: string
-    role: 'chairman' | 'staff'
+    role: 'chairman' | 'staff' | 'faculty'
   }
   student: Record<string, unknown>
   contributingPredictors?: Array<{
@@ -123,7 +123,7 @@ export interface AuditLogRecord {
     uid: string
     email: string
     name: string
-    role: 'Chairman' | 'Dean' | 'Staff'
+    role: 'Chairman' | 'Dean' | 'Staff' | 'Faculty'
   }
   metadata?: Record<string, unknown>
 }
@@ -136,7 +136,7 @@ export interface AuditLogWrite {
     uid: string
     email: string
     name: string
-    role: 'chairman' | 'staff'
+    role: 'chairman' | 'staff' | 'faculty'
   }
   occurredAt?: string
   metadata?: Record<string, unknown>
@@ -169,6 +169,7 @@ function roleLabelFromEmail(email: string): ManagedUserRole {
   const normalized = email.trim().toLowerCase()
   if (normalized === 'dean@ustp.edu.ph') return 'Dean'
   if (normalized === 'chairman@ustp.edu.ph') return 'Chairman'
+  if (normalized.includes('faculty')) return 'Faculty'
   return 'Staff'
 }
 
@@ -218,7 +219,8 @@ function sanitizeForFirestore(value: unknown): unknown {
   return value
 }
 
-function normalizeAuditRole(role: 'chairman' | 'staff', email: string): 'Chairman' | 'Dean' | 'Staff' {
+function normalizeAuditRole(role: 'chairman' | 'staff' | 'faculty', email: string): 'Chairman' | 'Dean' | 'Staff' | 'Faculty' {
+  if (role === 'faculty') return 'Faculty'
   if (role === 'staff') return 'Staff'
   if (email.trim().toLowerCase() === 'dean@ustp.edu.ph') return 'Dean'
   return 'Chairman'
@@ -425,7 +427,7 @@ export async function createAuditLog(payload: AuditLogWrite): Promise<string> {
 }
 
 export function subscribeAuditLogs(
-  requester: { uid: string; role: 'chairman' | 'staff' },
+  requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
   onData: (rows: AuditLogRecord[]) => void,
   onError?: (error: Error) => void,
 ): () => void {
@@ -535,7 +537,7 @@ export async function upsertUploadHistoryAnalytics(payload: UploadHistoryAnalyti
 }
 
 export function subscribeUploadHistoryAnalytics(
-  requester: { uid: string; role: 'chairman' | 'staff' },
+  requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
   onData: (rows: UploadHistoryAnalytics[]) => void,
   onError?: (error: Error) => void,
 ): () => void {
@@ -604,7 +606,7 @@ export async function savePredictionRowsAnalytics(
 
 export async function getPredictionRowsAnalyticsByUpload(
   uploadId: string,
-  requester: { uid: string; role: 'chairman' | 'staff' },
+  requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
 ): Promise<PredictionRowAnalytics[]> {
   if (!uploadId.trim()) return []
 
@@ -627,7 +629,7 @@ export async function getPredictionRowsAnalyticsByUpload(
 }
 
 export async function getLatestPredictionRunAnalytics(
-  requester: { uid: string; role: 'chairman' | 'staff' },
+  requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
 ): Promise<PredictionRunAnalyticsRecord | null> {
   const baseQuery = requester.role === 'chairman'
     ? query(collection(db, 'prediction_runs'), orderBy('predictionGeneratedAt', 'desc'), limit(1))
@@ -648,7 +650,7 @@ export async function getLatestPredictionRunAnalytics(
 
 export async function getPredictionRowsAnalyticsByRunId(
   runId: string,
-  requester: { uid: string; role: 'chairman' | 'staff' },
+  requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
 ): Promise<PredictionRowAnalytics[]> {
   if (!runId.trim()) return []
 

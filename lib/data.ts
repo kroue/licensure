@@ -1,6 +1,6 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type Role = 'chairman' | 'staff'
+export type Role = 'chairman' | 'staff' | 'faculty'
 
 export interface User {
   id: string
@@ -80,6 +80,7 @@ export interface AuditLog {
 export const DEMO_ACCOUNTS = {
   chairman: { email: 'msantos@ustp.edu.ph', password: 'chairman123', name: 'Dr. Maria Santos', role: 'chairman' as Role },
   staff:    { email: 'jdelacruz@ustp.edu.ph', password: 'staff123',   name: 'Engr. Jose Dela Cruz', role: 'staff' as Role },
+  faculty:  { email: 'fgarcia@ustp.edu.ph',   password: 'faculty123', name: 'Engr. Felix Garcia',   role: 'faculty' as Role },
 }
 
 // ─── Users ────────────────────────────────────────────────────────────────────
@@ -90,6 +91,7 @@ export const USERS: User[] = [
   { id: 'u3', name: 'Engr. Ana Reyes',       email: 'areyes@ustp.edu.ph',     role: 'staff',    department: 'Academic Affairs',  createdAt: '2024-02-01', status: 'active' },
   { id: 'u4', name: 'Prof. Carlos Bautista', email: 'cbautista@ustp.edu.ph',  role: 'chairman', department: "Dean's Office",     createdAt: '2024-02-14', status: 'active' },
   { id: 'u5', name: 'Engr. Liza Mendoza',    email: 'lmendoza@ustp.edu.ph',   role: 'staff',    department: 'Civil Engineering', createdAt: '2024-03-05', status: 'inactive' },
+  { id: 'u6', name: 'Engr. Felix Garcia',    email: 'fgarcia@ustp.edu.ph',    role: 'faculty',  department: 'Civil Engineering', createdAt: '2024-03-10', status: 'active' },
 ]
 
 // ─── Model Performance ────────────────────────────────────────────────────────
