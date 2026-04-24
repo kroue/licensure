@@ -29,6 +29,7 @@ export interface PredictedStudentRow {
   PSAD_AVE: number
   prediction: 'PASSED' | 'FAILED'
   probability: number
+  riskLevel: 'High Risk' | 'Medium Risk' | 'Low Risk' | null
   Age: number | null
   Gender: string
   Year_Level: string

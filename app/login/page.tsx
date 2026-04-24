@@ -36,12 +36,12 @@ export default function LoginPage() {
         }),
       ])
       if (lane === 'chairman' && role !== 'chairman') {
-        setError('This account belongs to Staff. Choose Staff login.')
+        setError('This account belongs to Staff / Faculty. Choose Staff / Faculty login.')
         setLoading(false)
         return
       }
 
-      if (lane === 'staff' && role !== 'staff') {
+      if (lane === 'staff' && role !== 'staff' && role !== 'faculty') {
         setError('This account belongs to Chairman / Dean. Choose Chairman / Dean login.')
         setLoading(false)
         return
@@ -134,7 +134,7 @@ export default function LoginPage() {
                     : { borderColor: '#cbd5e1', color: '#0B2C5D', backgroundColor: 'white' }
                 }
               >
-                Staff
+                Staff / Faculty
               </button>
             </div>
 

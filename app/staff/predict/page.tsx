@@ -20,6 +20,7 @@ import {
   type ProcessingSummary,
   type UploadSummary,
 } from '@/lib/upload-session'
+import { getFailedRiskLevelFromProbability } from '@/lib/risk'
 
 type Stage = 'ready' | 'confirm' | 'running' | 'done'
 type StageWithFailure = Stage | 'failed'
@@ -117,6 +118,7 @@ function buildContributingPredictors(row: PredictedStudentRow): SavedPredictor[]
 
 export default function PredictPage() {
   const { user, sessionStartedAt } = useAuth()
+  const isFaculty = user?.role === 'faculty'
   const [stage, setStage] = useState<StageWithFailure>('ready')
   const [progress, setProgress] = useState(0)
   const [processedRowsLive, setProcessedRowsLive] = useState(0)
@@ -148,10 +150,10 @@ export default function PredictPage() {
   }, [])
 
   const setRiskDistribution = (rows: PredictedStudentRow[]) => {
-    const riskScores = rows.map((row) => (row.prediction === 'FAILED' ? row.probability : 1 - row.probability))
-    const high = riskScores.filter((score) => score >= 0.7).length
-    const medium = riskScores.filter((score) => score >= 0.4 && score < 0.7).length
-    const low = riskScores.length - high - medium
+    const failedRows = rows.filter((row) => row.prediction === 'FAILED')
+    const high = failedRows.filter((row) => getFailedRiskLevelFromProbability(row.probability) === 'High Risk').length
+    const medium = failedRows.filter((row) => getFailedRiskLevelFromProbability(row.probability) === 'Medium Risk').length
+    const low = failedRows.length - high - medium
     setHighRisk(high)
     setMediumRisk(medium)
     setLowRisk(low)
@@ -167,6 +169,11 @@ export default function PredictPage() {
   )
 
   const openConfirm = () => {
+    if (isFaculty) {
+      setError('Faculty access is view-only. Running predictions is restricted to Staff.')
+      return
+    }
+
     if (!user?.uid) {
       setError('You are not authenticated yet. Please sign in again before running prediction.')
       return
@@ -183,6 +190,12 @@ export default function PredictPage() {
   }
 
   const runPrediction = async () => {
+    if (isFaculty) {
+      setError('Faculty access is view-only. Running predictions is restricted to Staff.')
+      setStage('ready')
+      return
+    }
+
     const uploadPayload = getUploadedCsvPayload()
     if (!uploadPayload?.uploadId) {
       setError('No backend upload session found. Please upload and validate CSV first.')
@@ -215,7 +228,7 @@ export default function PredictPage() {
       setProgress(72)
       setProcessedRowsLive(Math.floor(importedCount * 0.7))
 
-      const payload = (await response.json()) as { predictions?: PredictedStudentRow[]; error?: string }
+      const payload = (await response.json()) as { predictions?: PredictedStudentRow[]; modelAccuracy?: number; error?: string }
       if (!response.ok || !Array.isArray(payload.predictions)) {
         throw new Error(payload.error || 'Prediction API failed.')
       }
@@ -225,10 +238,10 @@ export default function PredictPage() {
       const predictedRows = payload.predictions
       const passedCount = predictedRows.filter((row) => row.prediction === 'PASSED').length
       const failedCount = predictedRows.length - passedCount
-      const riskScores = predictedRows.map((row) => (row.prediction === 'FAILED' ? row.probability : 1 - row.probability))
-      const highRiskCount = riskScores.filter((score) => score >= 0.7).length
-      const mediumRiskCount = riskScores.filter((score) => score >= 0.4 && score < 0.7).length
-      const lowRiskCount = riskScores.length - highRiskCount - mediumRiskCount
+      const failedRows = predictedRows.filter((row) => row.prediction === 'FAILED')
+      const highRiskCount = failedRows.filter((row) => getFailedRiskLevelFromProbability(row.probability) === 'High Risk').length
+      const mediumRiskCount = failedRows.filter((row) => getFailedRiskLevelFromProbability(row.probability) === 'Medium Risk').length
+      const lowRiskCount = failedRows.length - highRiskCount - mediumRiskCount
       const passRate = predictedRows.length > 0 ? (passedCount / predictedRows.length) * 100 : 0
       setPredictionCount(predictedRows.length)
       setPassed(passedCount)
@@ -259,7 +272,7 @@ export default function PredictPage() {
           mediumRiskCount,
           lowRiskCount,
           modelVersion: 'v2.1.3',
-          modelAccuracy: 92.3,
+          modelAccuracy: typeof payload.modelAccuracy === 'number' ? payload.modelAccuracy : undefined,
           processedRows: processingSummary?.processedRows ?? predictedRows.length,
           encodedFeatureCount: processingSummary?.encodedFeatureCount ?? 0,
           predictionGeneratedAt,
@@ -377,7 +390,9 @@ export default function PredictPage() {
       <div className="p-8 max-w-7xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold" style={{ color: '#0B2C5D' }}>Run Prediction</h1>
-          <p className="text-sm text-gray-600 mt-2">Execute machine learning model on prepared data</p>
+          <p className="text-sm text-gray-600 mt-2">
+            {isFaculty ? 'View student prediction results (read-only access)' : 'Execute machine learning model on prepared data'}
+          </p>
         </div>
 
         <section className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
@@ -417,6 +432,9 @@ export default function PredictPage() {
                 {!isCleanedAndEncoded && (
                   <p className="text-sm text-red-600 mt-3">Cannot proceed until data is cleaned and encoded.</p>
                 )}
+                {isFaculty && (
+                  <p className="text-sm text-amber-700 mt-3">Faculty users can view predictions only. Running a new prediction is disabled.</p>
+                )}
               </div>
             </div>
 
@@ -424,12 +442,12 @@ export default function PredictPage() {
 
             <button
               onClick={openConfirm}
-              disabled={!isCleanedAndEncoded}
+              disabled={!isCleanedAndEncoded || isFaculty}
               className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
               style={{ backgroundColor: '#0B2C5D' }}
             >
               <Play className="h-4 w-4" />
-              Start Prediction
+              {isFaculty ? 'Prediction View Only' : 'Start Prediction'}
             </button>
           </section>
         )}
@@ -489,26 +507,34 @@ export default function PredictPage() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/staff/summary"
-                  className="flex-1 rounded-xl px-5 py-2.5 text-center text-sm font-medium"
-                  style={{ backgroundColor: '#F2B705', color: '#111827' }}
-                >
-                  View Processing Summary
-                </Link>
-                <Link
-                  href="/staff"
-                  className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  Back to Dashboard
-                </Link>
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                >
-                  Run Again
-                </button>
+                {isFaculty ? (
+                  <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Faculty access is view-only for this module.
+                  </p>
+                ) : (
+                  <>
+                    <Link
+                      href="/staff/summary"
+                      className="flex-1 rounded-xl px-5 py-2.5 text-center text-sm font-medium"
+                      style={{ backgroundColor: '#F2B705', color: '#111827' }}
+                    >
+                      View Processing Summary
+                    </Link>
+                    <Link
+                      href="/staff"
+                      className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Back to Dashboard
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={reset}
+                      className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Run Again
+                    </button>
+                  </>
+                )}
               </div>
             </section>
 
@@ -551,20 +577,24 @@ export default function PredictPage() {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={reset}
-                className="rounded-xl px-6 py-2.5 text-sm font-medium text-white"
-                style={{ backgroundColor: '#0B2C5D' }}
-              >
-                Try Again
-              </button>
-              <Link
-                href="/staff/processing"
-                className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                Back to Processing
-              </Link>
+              {!isFaculty && (
+                <>
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="rounded-xl px-6 py-2.5 text-sm font-medium text-white"
+                    style={{ backgroundColor: '#0B2C5D' }}
+                  >
+                    Try Again
+                  </button>
+                  <Link
+                    href="/staff/processing"
+                    className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Back to Processing
+                  </Link>
+                </>
+              )}
             </div>
           </section>
         )}

@@ -97,12 +97,14 @@ function mapAuthError(errorMessage: string): string {
   return 'Authentication failed. Please try again.'
 }
 
-function roleLabelFromRole(role: Role, email: string): 'Chairman' | 'Dean' | 'Staff' {
+function roleLabelFromRole(role: Role, email: string): 'Chairman' | 'Dean' | 'Staff' | 'Faculty' {
+  if (role === 'faculty') return 'Faculty'
   if (role === 'staff') return 'Staff'
   return email.trim().toLowerCase() === 'dean@ustp.edu.ph' ? 'Dean' : 'Chairman'
 }
 
 function appRoleFromManagedRole(role: ManagedUserRole): Role {
+  if (role === 'Faculty') return 'faculty'
   return role === 'Staff' ? 'staff' : 'chairman'
 }
 
@@ -110,6 +112,7 @@ function fallbackManagedRole(email: string): ManagedUserRole {
   const normalized = email.trim().toLowerCase()
   if (normalized === 'dean@ustp.edu.ph') return 'Dean'
   if (normalized === 'chairman@ustp.edu.ph') return 'Chairman'
+  if (normalized.includes('faculty')) return 'Faculty'
   return 'Staff'
 }
 
