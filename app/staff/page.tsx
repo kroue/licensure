@@ -10,7 +10,7 @@ type PipelineStep = {
   title: string
   subtitle: string
   href: string
-  icon: React.ComponentType<{ className?: string }>
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   isDone: boolean
 }
 
