@@ -3,11 +3,30 @@ import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 
 const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL
-  ?? (process.env.VERCEL ? 'https://licensure-pi.vercel.app' : 'http://127.0.0.1:8000')
+  ?? 'http://127.0.0.1:8000'
 const BACKEND_TIMEOUT_MS = 20000
+
+function parseJsonObject(text: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(text) as unknown
+    if (parsed && typeof parsed === 'object') {
+      return parsed as Record<string, unknown>
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 export async function POST(request: Request) {
   try {
+    if (process.env.VERCEL && !process.env.PYTHON_BACKEND_URL) {
+      return NextResponse.json(
+        { error: 'PYTHON_BACKEND_URL is not configured in Vercel environment variables.' },
+        { status: 500 },
+      )
+    }
+
     const body = await request.json() as { uploadId?: string }
     const uploadId = typeof body.uploadId === 'string' ? body.uploadId : ''
 
@@ -30,15 +49,30 @@ export async function POST(request: Request) {
       clearTimeout(timeoutHandle)
     }
 
-    const payload = await backendResponse.json() as { detail?: string; error?: string }
+    const rawPayload = await backendResponse.text()
+    const parsedPayload = parseJsonObject(rawPayload)
+    const detail = typeof parsedPayload?.detail === 'string' ? parsedPayload.detail : ''
+    const errorText = typeof parsedPayload?.error === 'string' ? parsedPayload.error : ''
+
     if (!backendResponse.ok) {
+      const fallbackError = rawPayload.trim().startsWith('<')
+        ? 'Python backend returned HTML instead of JSON. Check PYTHON_BACKEND_URL and backend deployment.'
+        : rawPayload.slice(0, 180)
+
       return NextResponse.json(
-        { error: payload.detail || payload.error || 'Python backend validation failed.' },
+        { error: detail || errorText || fallbackError || 'Python backend validation failed.' },
         { status: backendResponse.status },
       )
     }
 
-    return NextResponse.json(payload)
+    if (!parsedPayload) {
+      return NextResponse.json(
+        { error: 'Python backend validation response was not valid JSON.' },
+        { status: 502 },
+      )
+    }
+
+    return NextResponse.json(parsedPayload)
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(

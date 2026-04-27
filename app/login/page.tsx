@@ -9,10 +9,6 @@ import type { Role } from '@/lib/data'
 
 type LoginLane = 'chairman' | 'staff'
 
-const CHAIRMAN_ACCOUNT = { email: 'chairman@ustp.edu.ph', password: 'chairman123' }
-const DEAN_ACCOUNT = { email: 'dean@ustp.edu.ph', password: 'dean123' }
-const STAFF_ACCOUNT = { email: 'staff@ustp.edu.ph', password: 'staff123' }
-
 export default function LoginPage() {
   const router = useRouter()
   const { login, loading: authLoading } = useAuth()
@@ -53,12 +49,6 @@ export default function LoginPage() {
     }
 
     setLoading(false)
-  }
-
-  const fillAccount = (account: { email: string; password: string }) => {
-    setEmail(account.email)
-    setPassword(account.password)
-    setError('')
   }
 
   return (
@@ -109,7 +99,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => {
                   setLane('chairman')
-                  fillAccount(CHAIRMAN_ACCOUNT)
+                  setError('')
                 }}
                 className="text-xs py-2 px-3 rounded-lg border-2 transition-all hover:shadow-md font-medium"
                 style={
@@ -125,7 +115,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => {
                   setLane('staff')
-                  fillAccount(STAFF_ACCOUNT)
+                  setError('')
                 }}
                 className="text-xs py-2 px-3 rounded-lg border-2 transition-all hover:shadow-md font-medium"
                 style={
