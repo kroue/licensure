@@ -48,9 +48,20 @@ export default function UploadPage() {
         body: JSON.stringify({ fileName: file.name, csvText }),
       })
 
-      const payload = await response.json() as { uploadId?: string; error?: string }
+      const rawPayload = await response.text()
+      let payload: { uploadId?: string; error?: string } = {}
+
+      try {
+        payload = JSON.parse(rawPayload) as { uploadId?: string; error?: string }
+      } catch {
+        payload = {}
+      }
+
       if (!response.ok || !payload.uploadId) {
-        throw new Error(payload.error || 'Backend upload failed.')
+        const fallbackError = rawPayload && !rawPayload.trim().startsWith('<')
+          ? rawPayload.slice(0, 180)
+          : ''
+        throw new Error(payload.error || fallbackError || `Upload failed (${response.status}).`)
       }
 
       saveUploadedCsvPayload({
