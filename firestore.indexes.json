@@ -1,4 +1,63 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "prediction_runs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "runBy.uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "predictionGeneratedAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "prediction_rows",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "runId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "rowIndex",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "prediction_rows",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "runBy.uid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "runId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "rowIndex",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

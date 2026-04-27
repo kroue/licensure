@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, CheckCircle, Loader2, Play, TrendingUp } from 'lucide-react'
+import StudentPredictionsModule from '@/components/StudentPredictionsModule'
 import { useAuth } from '@/lib/auth'
 import {
   createAuditLog,
@@ -383,6 +384,10 @@ export default function PredictPage() {
     setProcessedRowsLive(0)
     setError('')
     setFailureReason('')
+  }
+
+  if (isFaculty) {
+    return <StudentPredictionsModule />
   }
 
   return (
