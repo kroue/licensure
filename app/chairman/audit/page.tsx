@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { subscribeAuditLogs, type AuditLogRecord } from '@/lib/firebase'
 
-type RoleFilter = 'All Roles' | 'Staff' | 'Dean' | 'Chairman'
+type RoleFilter = 'All Roles' | 'Staff' | 'Faculty' | 'Dean' | 'Chairman'
 
 function toDateLabel(iso: string): string {
   const parsed = new Date(iso)
@@ -93,7 +93,7 @@ export default function AuditPage() {
               onChange={(event) => setRoleFilter(event.target.value as RoleFilter)}
               className="h-12 min-w-[160px] rounded-xl border border-gray-300 px-4 text-base text-gray-800 bg-white focus:outline-none"
             >
-              {['All Roles', 'Staff', 'Dean', 'Chairman'].map((role) => (
+              {['All Roles', 'Staff', 'Faculty', 'Dean', 'Chairman'].map((role) => (
                 <option key={role} value={role}>{role}</option>
               ))}
             </select>

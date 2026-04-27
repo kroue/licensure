@@ -15,11 +15,13 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  startAfter,
   Timestamp,
   updateDoc,
   writeBatch,
   where,
 } from 'firebase/firestore'
+import type { QueryConstraint } from 'firebase/firestore'
 import type { Role } from './data'
 
 const firebaseConfig = {
@@ -109,6 +111,12 @@ export interface PredictionRowAnalytics {
 
 export interface PredictionRunAnalyticsRecord extends PredictionRunAnalytics {
   id: string
+}
+
+export interface PredictionRowsPageResult {
+  rows: PredictionRowAnalytics[]
+  hasNextPage: boolean
+  nextCursor: number | null
 }
 
 export type AuditLogStatus = 'Success' | 'Failed' | 'Info'
@@ -610,7 +618,9 @@ export async function getPredictionRowsAnalyticsByUpload(
 ): Promise<PredictionRowAnalytics[]> {
   if (!uploadId.trim()) return []
 
-  const rowsQuery = requester.role === 'chairman'
+  const canReadSharedPredictions = requester.role === 'chairman' || requester.role === 'faculty'
+
+  const rowsQuery = canReadSharedPredictions
     ? query(collection(db, 'prediction_rows'), where('uploadId', '==', uploadId.trim()))
     : query(
         collection(db, 'prediction_rows'),
@@ -631,21 +641,58 @@ export async function getPredictionRowsAnalyticsByUpload(
 export async function getLatestPredictionRunAnalytics(
   requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
 ): Promise<PredictionRunAnalyticsRecord | null> {
-  const baseQuery = requester.role === 'chairman'
-    ? query(collection(db, 'prediction_runs'), orderBy('predictionGeneratedAt', 'desc'), limit(1))
-    : query(
-        collection(db, 'prediction_runs'),
-        where('runBy.uid', '==', requester.uid),
-        orderBy('predictionGeneratedAt', 'desc'),
-        limit(1),
-      )
+  const canReadSharedPredictions = requester.role === 'chairman' || requester.role === 'faculty'
 
-  const snapshot = await getDocs(baseQuery)
-  if (snapshot.empty) return null
+  if (canReadSharedPredictions) {
+    const chairmanQuery = query(collection(db, 'prediction_runs'), orderBy('predictionGeneratedAt', 'desc'), limit(1))
+    const chairmanSnapshot = await getDocs(chairmanQuery)
+    if (chairmanSnapshot.empty) return null
 
-  const runDoc = snapshot.docs[0]
-  const run = runDoc.data() as PredictionRunAnalytics
-  return { id: runDoc.id, ...run }
+    const runDoc = chairmanSnapshot.docs[0]
+    const run = runDoc.data() as PredictionRunAnalytics
+    return { id: runDoc.id, ...run }
+  }
+
+  const indexedQuery = query(
+    collection(db, 'prediction_runs'),
+    where('runBy.uid', '==', requester.uid),
+    orderBy('predictionGeneratedAt', 'desc'),
+    limit(1),
+  )
+
+  try {
+    const snapshot = await getDocs(indexedQuery)
+    if (snapshot.empty) return null
+
+    const runDoc = snapshot.docs[0]
+    const run = runDoc.data() as PredictionRunAnalytics
+    return { id: runDoc.id, ...run }
+  } catch (error) {
+    const code = (error as { code?: string } | null)?.code
+    if (code !== 'failed-precondition') {
+      throw error
+    }
+
+    const fallbackQuery = query(
+      collection(db, 'prediction_runs'),
+      where('runBy.uid', '==', requester.uid),
+    )
+    const fallbackSnapshot = await getDocs(fallbackQuery)
+    if (fallbackSnapshot.empty) return null
+
+    const latest = fallbackSnapshot.docs
+      .map((snapshotDoc) => {
+        const run = snapshotDoc.data() as PredictionRunAnalytics
+        return { id: snapshotDoc.id, ...run }
+      })
+      .sort((a, b) => {
+        const aTime = new Date(a.predictionGeneratedAt || '').getTime()
+        const bTime = new Date(b.predictionGeneratedAt || '').getTime()
+        return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0)
+      })[0]
+
+    return latest ?? null
+  }
 }
 
 export async function getPredictionRowsAnalyticsByRunId(
@@ -654,7 +701,9 @@ export async function getPredictionRowsAnalyticsByRunId(
 ): Promise<PredictionRowAnalytics[]> {
   if (!runId.trim()) return []
 
-  const rowsQuery = requester.role === 'chairman'
+  const canReadSharedPredictions = requester.role === 'chairman' || requester.role === 'faculty'
+
+  const rowsQuery = canReadSharedPredictions
     ? query(collection(db, 'prediction_rows'), where('runId', '==', runId.trim()))
     : query(
         collection(db, 'prediction_rows'),
@@ -670,4 +719,54 @@ export async function getPredictionRowsAnalyticsByRunId(
       const bIndex = typeof b.rowIndex === 'number' ? b.rowIndex : 0
       return aIndex - bIndex
     })
+}
+
+export async function getPredictionRowsAnalyticsPageByRunId(
+  runId: string,
+  requester: { uid: string; role: 'chairman' | 'staff' | 'faculty' },
+  options?: { pageSize?: number; startAfterRowIndex?: number | null },
+): Promise<PredictionRowsPageResult> {
+  const trimmedRunId = runId.trim()
+  if (!trimmedRunId) {
+    return {
+      rows: [],
+      hasNextPage: false,
+      nextCursor: null,
+    }
+  }
+
+  const canReadSharedPredictions = requester.role === 'chairman' || requester.role === 'faculty'
+  const pageSize = Math.max(1, Math.min(100, options?.pageSize ?? 25))
+
+  const queryParts: QueryConstraint[] = canReadSharedPredictions
+    ? [
+        where('runId', '==', trimmedRunId),
+        orderBy('rowIndex', 'asc'),
+      ]
+    : [
+        where('runId', '==', trimmedRunId),
+        where('runBy.uid', '==', requester.uid),
+        orderBy('rowIndex', 'asc'),
+      ]
+
+  const startAfterRowIndex = options?.startAfterRowIndex
+  if (typeof startAfterRowIndex === 'number') {
+    queryParts.push(startAfter(startAfterRowIndex))
+  }
+  queryParts.push(limit(pageSize + 1))
+
+  const rowsQuery = query(collection(db, 'prediction_rows'), ...queryParts)
+  const snapshot = await getDocs(rowsQuery)
+
+  const docs = snapshot.docs.map((snapshotDoc) => snapshotDoc.data() as PredictionRowAnalytics & { rowIndex?: number })
+  const hasNextPage = docs.length > pageSize
+  const pageRows = hasNextPage ? docs.slice(0, pageSize) : docs
+  const lastRow = pageRows[pageRows.length - 1]
+  const nextCursor = hasNextPage && typeof lastRow?.rowIndex === 'number' ? lastRow.rowIndex : null
+
+  return {
+    rows: pageRows,
+    hasNextPage,
+    nextCursor,
+  }
 }

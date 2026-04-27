@@ -11,7 +11,6 @@ interface StudentRecord {
   name: string
   yearLevel: string
   gpa: string
-  email: string
 }
 
 const YEAR_LEVEL_OPTIONS = ['4th Year', '5th Year'] as const
@@ -97,7 +96,6 @@ export default function StudentsPage() {
       studentId: editDraft.studentId.trim(),
       name: editDraft.name.trim(),
       gpa: editDraft.gpa.trim(),
-      email: editDraft.email.trim(),
       yearLevel: normalizeYearLevel(editDraft.yearLevel),
     }
 
@@ -154,9 +152,8 @@ export default function StudentsPage() {
       const yearLevelRaw = student['Year_Level'] ?? student['YearLevel'] ?? student['yearLevel']
       const examYear = student['Exam_year']
       const yearLevel = yearLevelRaw ? String(yearLevelRaw) : examYear ? `Exam ${String(examYear)}` : 'N/A'
-      const email = String(student['Email'] ?? student['email'] ?? `${String(name).toLowerCase().replace(/\s+/g, '.')}@ustp.edu.ph`)
 
-      return { studentId, name, yearLevel, gpa, email }
+      return { studentId, name, yearLevel, gpa }
     }
 
     const loadRecords = async () => {
@@ -225,7 +222,6 @@ export default function StudentsPage() {
                 <th className="text-left px-8 py-4 text-xs font-semibold tracking-wide text-gray-700 uppercase">Name</th>
                 <th className="text-left px-8 py-4 text-xs font-semibold tracking-wide text-gray-700 uppercase">Year Level</th>
                 <th className="text-left px-8 py-4 text-xs font-semibold tracking-wide text-gray-700 uppercase">GPA</th>
-                <th className="text-left px-8 py-4 text-xs font-semibold tracking-wide text-gray-700 uppercase">Email</th>
                 <th className="text-left px-8 py-4 text-xs font-semibold tracking-wide text-gray-700 uppercase">Actions</th>
               </tr>
             </thead>
@@ -285,17 +281,6 @@ export default function StudentsPage() {
                         record.gpa
                       )}
                     </td>
-                    <td className="px-8 py-5 text-sm text-gray-500">
-                      {isEditing ? (
-                        <input
-                          value={editDraft?.email ?? ''}
-                          onChange={(event) => handleDraftChange('email', event.target.value)}
-                          className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm text-gray-700 focus:outline-none"
-                        />
-                      ) : (
-                        record.email
-                      )}
-                    </td>
                     <td className="px-8 py-5 text-sm text-gray-700">
                       {isEditing ? (
                         <div className="inline-flex items-center gap-2">
@@ -333,7 +318,7 @@ export default function StudentsPage() {
               })}
               {!loading && paginatedRows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-8 py-8 text-sm text-gray-500 text-center">
+                  <td colSpan={5} className="px-8 py-8 text-sm text-gray-500 text-center">
                     No student records found from Firestore prediction analytics.
                   </td>
                 </tr>

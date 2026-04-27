@@ -21,6 +21,10 @@ service cloud.firestore {
       return isChairmanEmail() || isDeanEmail();
     }
 
+    function isFacultyEmail() {
+      return userEmail().matches(".*faculty.*");
+    }
+
     function isOwner(data) {
       return isSignedIn()
         && data.uid is string
@@ -28,7 +32,7 @@ service cloud.firestore {
     }
 
     function validRoleValue(role) {
-      return role in ["Chairman", "Dean", "Staff"];
+      return role in ["Chairman", "Dean", "Staff", "Faculty"];
     }
 
     function validStatusValue(status) {
@@ -88,6 +92,7 @@ service cloud.firestore {
 
       allow read: if isSignedIn() && (
         isChairmanOrDean()
+        || isFacultyEmail()
         || resource.data.runBy.uid == request.auth.uid
       );
 
@@ -100,6 +105,7 @@ service cloud.firestore {
 
       allow read: if isSignedIn() && (
         isChairmanOrDean()
+        || isFacultyEmail()
         || resource.data.runBy.uid == request.auth.uid
       );
 
@@ -112,6 +118,7 @@ service cloud.firestore {
 
       allow read: if isSignedIn() && (
         isChairmanOrDean()
+        || isFacultyEmail()
         || resource.data.runBy.uid == request.auth.uid
       );
 

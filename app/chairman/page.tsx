@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, BarChart3, CheckCircle2, Clock3, Users } from 'lucide-react'
+import { AlertTriangle, BarChart3, Clock3, Users } from 'lucide-react'
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useAuth } from '@/lib/auth'
 import {
@@ -111,13 +111,11 @@ export default function ChairmanDashboard() {
     const total = latestRun?.totalAnalyzed ?? 0
     const passRate = latestRun?.passRate ?? 0
     const atRisk = latestRun?.failedCount ?? 0
-    const modelAccuracy = typeof latestRun?.modelAccuracy === 'number' ? latestRun.modelAccuracy : 0
 
     return {
       total,
       passRate,
       atRisk,
-      modelAccuracy,
       highRisk: latestRun?.highRiskCount ?? 0,
       mediumRisk: latestRun?.mediumRiskCount ?? 0,
       lowRisk: latestRun?.lowRiskCount ?? 0,
@@ -138,7 +136,7 @@ export default function ChairmanDashboard() {
         <p className="text-sm text-gray-600 mt-2">Strategic insights and prediction summary for Civil Engineering licensure exam</p>
       </header>
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         {[
           {
             icon: Users,
@@ -163,14 +161,6 @@ export default function ChairmanDashboard() {
             iconBg: '#fef2f2',
             iconColor: '#ef4444',
             formatter: (val: number) => val.toLocaleString(),
-          },
-          {
-            icon: CheckCircle2,
-            value: overview.modelAccuracy,
-            label: 'Model Accuracy',
-            iconBg: '#fffbeb',
-            iconColor: '#d4a106',
-            formatter: (val: number) => `${val.toFixed(1)}%`,
           },
         ].map((card) => {
           const Icon = card.icon

@@ -38,6 +38,25 @@ function toText(value: unknown, fallback: string): string {
   return fallback
 }
 
+function repairStudentText(value: unknown): string {
+  const raw = String(value ?? '')
+  return raw
+    .replace(/Ã±/g, 'ñ')
+    .replace(/Ã‘/g, 'Ñ')
+    .replace(/Ã¡/g, 'á')
+    .replace(/Ã©/g, 'é')
+    .replace(/Ã­/g, 'í')
+    .replace(/Ã³/g, 'ó')
+    .replace(/Ãº/g, 'ú')
+    .replace(/Ã¼/g, 'ü')
+    .replace(/Â/g, '')
+    .replace(/([A-Z])\uFFFD([A-Z])/g, '$1Ñ$2')
+    .replace(/([a-z])\uFFFD([a-z])/g, '$1ñ$2')
+    .replace(/\uFFFD/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function toReportRow(source: PredictionRowAnalytics): ReportRow {
   const student = source.student as Record<string, unknown>
   const predictionRaw = toText(student['prediction'], 'PASSED').toUpperCase()
@@ -46,10 +65,10 @@ function toReportRow(source: PredictionRowAnalytics): ReportRow {
   const riskLevel = getRiskLevel(prediction, probability)
 
   return {
-    studentCode: toText(student['Student_Code'] ?? student['studentId'], 'N/A'),
-    studentName: toText(student['Student_Name'] ?? student['name'], 'Unknown Student'),
-    cohortYear: toText(student['Exam_year'] ?? student['Cohort_Year'] ?? student['cohortYear'], 'Unknown'),
-    yearLevel: toText(student['Year_Level'] ?? student['YearLevel'] ?? student['yearLevel'], 'All Year Levels'),
+    studentCode: repairStudentText(toText(student['Student_Code'] ?? student['studentId'], 'N/A')),
+    studentName: repairStudentText(toText(student['Student_Name'] ?? student['name'], 'Unknown Student')),
+    cohortYear: repairStudentText(toText(student['Exam_year'] ?? student['Cohort_Year'] ?? student['cohortYear'], 'Unknown')),
+    yearLevel: repairStudentText(toText(student['Year_Level'] ?? student['YearLevel'] ?? student['yearLevel'], 'All Year Levels')),
     prediction,
     probability,
     riskLevel,
@@ -71,9 +90,52 @@ function drawSimpleTable(
   const left = 40
   const right = pageWidth - 40
   const width = right - left
-  const rowHeight = 18
-  const colWidth = width / columns.length
+  const rowHeight = 24
+  const headerHeight = 26
+  const cellPaddingX = 6
+  const cellPaddingY = 15
+  const columnRatios = [0.2, 0.42, 0.16, 0.22]
+  const colWidths = columns.map((_, idx) => width * (columnRatios[idx] ?? (1 / columns.length)))
   let y = startY
+
+  const sanitizePdfText = (value: string): string => {
+    const normalized = (value || '-')
+      // Fix common UTF-8 mojibake sequences before further normalization.
+      .replace(/Ã±/g, 'ñ')
+      .replace(/Ã‘/g, 'Ñ')
+      .replace(/Ã¡/g, 'á')
+      .replace(/Ã©/g, 'é')
+      .replace(/Ã­/g, 'í')
+      .replace(/Ã³/g, 'ó')
+      .replace(/Ãº/g, 'ú')
+      .replace(/Ã¼/g, 'ü')
+      .replace(/Ã/g, 'Á')
+      .replace(/Â/g, '')
+      .replace(/([A-Z])\uFFFD([A-Z])/g, '$1Ñ$2')
+      .replace(/([a-z])\uFFFD([a-z])/g, '$1ñ$2')
+      .replace(/\uFFFD/g, '')
+      .replace(/\u00A0/g, ' ')
+      .normalize('NFC')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      // Keep Latin-1 letters (includes Ñ/ñ) and strip unsupported control chars.
+      .replace(/[^\x20-\x7E\xA0-\xFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    return normalized || '-'
+  }
+
+  const fitText = (value: string, maxWidth: number): string => {
+    const safe = sanitizePdfText(value)
+    if (pdf.getTextWidth(safe) <= maxWidth) return safe
+
+    let clipped = safe
+    while (clipped.length > 0 && pdf.getTextWidth(`${clipped}...`) > maxWidth) {
+      clipped = clipped.slice(0, -1)
+    }
+    return clipped ? `${clipped}...` : '...'
+  }
 
   const ensurePage = () => {
     if (y + rowHeight > pageHeight - 40) {
@@ -82,24 +144,40 @@ function drawSimpleTable(
     }
   }
 
-  ensurePage()
+  if (y + headerHeight > pageHeight - 40) {
+    pdf.addPage()
+    y = 40
+  }
+
+  pdf.setDrawColor(209, 213, 219)
+  pdf.setLineWidth(0.8)
+  pdf.setTextColor(17, 24, 39)
+  pdf.setFillColor(255, 255, 255)
   pdf.setFont('helvetica', 'bold')
+  let x = left
   columns.forEach((header, idx) => {
-    pdf.text(header, left + idx * colWidth + 4, y + 12)
+    const currentWidth = colWidths[idx]
+    pdf.rect(x, y, currentWidth, headerHeight, 'S')
+    pdf.text(fitText(header, currentWidth - (cellPaddingX * 2)), x + cellPaddingX, y + cellPaddingY)
+    x += currentWidth
   })
-  y += rowHeight
+  y += headerHeight
 
   pdf.setFont('helvetica', 'normal')
   rows.forEach((row) => {
     ensurePage()
+
+    let rowX = left
     row.forEach((value, idx) => {
-      const clipped = value.length > 36 ? `${value.slice(0, 33)}...` : value
-      pdf.text(clipped, left + idx * colWidth + 4, y + 12)
+      const currentWidth = colWidths[idx]
+      pdf.rect(rowX, y, currentWidth, rowHeight)
+      pdf.text(fitText(value, currentWidth - (cellPaddingX * 2)), rowX + cellPaddingX, y + cellPaddingY)
+      rowX += currentWidth
     })
     y += rowHeight
   })
 
-  return y + 6
+  return y + 12
 }
 
 function formatDate(dateText: string): string {
@@ -264,14 +342,22 @@ export default function ReportsPage() {
       pdf.setFontSize(10)
 
       failedByRisk.forEach((group) => {
+        if (y > pdf.internal.pageSize.getHeight() - 160) {
+          pdf.addPage()
+          y = 40
+        }
+
+        pdf.setDrawColor(209, 213, 219)
+        pdf.setFillColor(255, 255, 255)
+        pdf.rect(40, y - 2, pdf.internal.pageSize.getWidth() - 80, 18, 'S')
         pdf.setFont('helvetica', 'bold')
-        pdf.text(`${group.title} (${group.rows.length})`, 40, y)
-        y += 10
+        pdf.text(`${group.title} (${group.rows.length})`, 46, y + 10)
+        y += 24
         pdf.setFont('helvetica', 'normal')
 
         if (group.rows.length === 0) {
           pdf.text('No students in this risk group.', 44, y)
-          y += 16
+          y += 20
           return
         }
 
@@ -281,6 +367,8 @@ export default function ReportsPage() {
           ['Student Code', 'Student Name', 'Year Level', 'Failure Confidence'],
           group.rows.map((row) => [row.studentCode, row.studentName, row.yearLevel, confidencePct(row.probability)]),
         )
+
+        y += 8
       })
 
       if (y > pdf.internal.pageSize.getHeight() - 80) {
