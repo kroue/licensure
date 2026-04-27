@@ -281,10 +281,15 @@ export default function PredictPage() {
           runBy,
         })
 
+        const analyticsUploadId = uploadPayload.uploadId;
+        if (!analyticsUploadId) {
+          throw new Error("Missing uploadId in upload payload.");
+        }
+
         await savePredictionRowsAnalytics(
           predictedRows.map((row) => ({
             runId,
-            uploadId: uploadPayload.uploadId,
+            uploadId: analyticsUploadId,
             fileName: uploadedFileName,
             predictionGeneratedAt,
             runBy,
