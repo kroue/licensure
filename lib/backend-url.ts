@@ -36,3 +36,35 @@ export function getBackendBaseCandidates(): string[] {
   }
   return unique
 }
+
+export function getBackendEndpointCandidates(endpoint: string): string[] {
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+  const baseCandidates = getBackendBaseCandidates()
+  const urls: string[] = []
+
+  for (const base of baseCandidates) {
+    const normalizedBase = removeTrailingSlash(base)
+    const alreadyHasEndpoint = normalizedBase.endsWith(normalizedEndpoint)
+    if (alreadyHasEndpoint) {
+      urls.push(normalizedBase)
+    } else {
+      urls.push(`${normalizedBase}${normalizedEndpoint}`)
+    }
+
+    if (!normalizedBase.includes('/_/backend')) {
+      urls.push(`${normalizedBase}/_/backend${normalizedEndpoint}`)
+    }
+
+    if (!normalizedBase.includes('/api')) {
+      urls.push(`${normalizedBase}/api${normalizedEndpoint}`)
+    }
+  }
+
+  const unique: string[] = []
+  for (const url of urls) {
+    if (!unique.includes(url)) {
+      unique.push(url)
+    }
+  }
+  return unique
+}
