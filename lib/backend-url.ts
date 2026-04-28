@@ -2,23 +2,36 @@ function removeTrailingSlash(value: string): string {
   return value.endsWith('/') ? value.slice(0, -1) : value
 }
 
+function normalizeToAbsoluteUrl(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return removeTrailingSlash(trimmed)
+  }
+  return removeTrailingSlash(`https://${trimmed}`)
+}
+
 export function getBackendBaseCandidates(): string[] {
   const candidates: string[] = []
-  const configured = process.env.PYTHON_BACKEND_URL?.trim()
+  const configuredRaw = process.env.PYTHON_BACKEND_URL?.trim()
   const isVercel = Boolean(process.env.VERCEL)
 
-  if (configured) {
-    const normalized = removeTrailingSlash(configured)
-    candidates.push(normalized)
+  if (configuredRaw) {
+    const configuredValues = configuredRaw
+      .split(/[\r\n,\s]+/)
+      .map((value) => normalizeToAbsoluteUrl(value))
+      .filter((value) => value.length > 0)
 
-    if (isVercel && !normalized.includes('/_/backend')) {
-      candidates.push(`${normalized}/_/backend`)
+    for (const normalized of configuredValues) {
+      candidates.push(normalized)
+      if (isVercel && !normalized.includes('/_/backend')) {
+        candidates.push(`${normalized}/_/backend`)
+      }
     }
   } else if (isVercel) {
     const vercelUrl = process.env.VERCEL_URL?.trim()
     if (vercelUrl) {
-      const host = vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`
-      const normalized = removeTrailingSlash(host)
+      const normalized = normalizeToAbsoluteUrl(vercelUrl)
       candidates.push(`${normalized}/_/backend`)
       candidates.push(normalized)
     }
