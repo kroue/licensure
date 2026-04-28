@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from io import StringIO
+import os
 from pathlib import Path
 from threading import Lock
 from typing import Any
@@ -23,7 +24,8 @@ MISSING_THRESHOLD = 0.30
 MAX_ISSUES_IN_RESPONSE = 200
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DATASET_PATH = ROOT_DIR / "v7 LiCEnSURE Dataset.csv"
+BACKEND_DIR = Path(__file__).resolve().parent
+DATASET_FILENAME = "v7 LiCEnSURE Dataset.csv"
 
 REQUIRED_COLUMNS = [
     "Student_Code",
@@ -140,6 +142,25 @@ _upload_lock = Lock()
 _trained_pipeline: Pipeline | None = None
 _model_accuracy_pct: float | None = None
 _upload_store: dict[str, UploadRecord] = {}
+
+
+def resolve_dataset_path() -> Path | None:
+    dataset_override = os.environ.get("TRAINING_DATASET_PATH", "").strip()
+    if dataset_override:
+        candidate = Path(dataset_override)
+        if candidate.exists():
+            return candidate
+
+    candidates = [
+        ROOT_DIR / DATASET_FILENAME,
+        BACKEND_DIR / DATASET_FILENAME,
+        Path.cwd() / DATASET_FILENAME,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return None
 
 
 def normalize_header(value: str) -> str:
@@ -309,10 +330,22 @@ def ensure_training_model() -> Pipeline:
         if _trained_pipeline is not None:
             return _trained_pipeline
 
-        if not DATASET_PATH.exists():
-            raise HTTPException(status_code=500, detail=f"Training dataset not found: {DATASET_PATH.name}")
+        dataset_path = resolve_dataset_path()
+        if dataset_path is None:
+            searched_paths = [
+                str(ROOT_DIR / DATASET_FILENAME),
+                str(BACKEND_DIR / DATASET_FILENAME),
+                str(Path.cwd() / DATASET_FILENAME),
+            ]
+            raise HTTPException(
+                status_code=500,
+                detail=(
+                    f"Training dataset not found: {DATASET_FILENAME}. "
+                    f"Searched: {', '.join(searched_paths)}"
+                ),
+            )
 
-        df = pd.read_csv(DATASET_PATH, encoding="latin-1")
+        df = pd.read_csv(dataset_path, encoding="latin-1")
         df.columns = [str(c).strip() for c in df.columns]
 
         if "Result" not in df.columns:
