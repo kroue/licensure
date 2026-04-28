@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server'
+import { getBackendBaseCandidates } from '@/lib/backend-url'
 
 export const runtime = 'nodejs'
 
-const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL
-  ?? (process.env.VERCEL ? 'https://licensure-pi.vercel.app' : 'http://127.0.0.1:8000')
+function parseJsonObject(text: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(text) as unknown
+    if (parsed && typeof parsed === 'object') {
+      return parsed as Record<string, unknown>
+    }
+    return null
+  } catch {
+    return null
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -13,21 +23,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'uploadId is required.' }, { status: 400 })
     }
 
-    const backendResponse = await fetch(`${PYTHON_BACKEND_URL}/records`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uploadId }),
-    })
+    const backendCandidates = getBackendBaseCandidates()
+    let backendResponse: Response | null = null
+    let payload: Record<string, unknown> | null = null
+    let rawPayload = ''
 
-    const payload = await backendResponse.json() as { detail?: string; error?: string }
+    for (const baseUrl of backendCandidates) {
+      backendResponse = await fetch(`${baseUrl}/records`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uploadId }),
+      })
+      rawPayload = await backendResponse.text()
+      payload = parseJsonObject(rawPayload)
+
+      if (
+        backendResponse.status === 404
+        && (rawPayload.trim().startsWith('<') || rawPayload.includes('NOT_FOUND'))
+      ) {
+        continue
+      }
+
+      break
+    }
+
+    if (!backendResponse) {
+      return NextResponse.json({ error: 'Python backend is unreachable.' }, { status: 502 })
+    }
+
     if (!backendResponse.ok) {
       return NextResponse.json(
-        { error: payload.detail || payload.error || 'Python backend records failed.' },
+        {
+          error:
+            (typeof payload?.detail === 'string' ? payload.detail : '')
+            || (typeof payload?.error === 'string' ? payload.error : '')
+            || 'Python backend records failed.',
+        },
         { status: backendResponse.status },
       )
     }
 
-    return NextResponse.json(payload)
+    return NextResponse.json(payload ?? {})
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Records request failed.'
     return NextResponse.json({ error: message }, { status: 500 })
