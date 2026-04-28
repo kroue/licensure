@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getBackendBaseCandidates } from '@/lib/backend-url'
+import { getBackendEndpointCandidates } from '@/lib/backend-url'
 
 export const runtime = 'nodejs'
 
@@ -19,8 +19,8 @@ function parseJsonObject(text: string): Record<string, unknown> | null {
 
 export async function POST(request: Request) {
   try {
-    const backendCandidates = getBackendBaseCandidates()
-    if (backendCandidates.length === 0) {
+    const backendUrlCandidates = getBackendEndpointCandidates('/upload')
+    if (backendUrlCandidates.length === 0) {
       return NextResponse.json(
         { error: 'Backend URL is not configured. Set PYTHON_BACKEND_URL or VERCEL_URL.' },
         { status: 500 },
@@ -38,11 +38,11 @@ export async function POST(request: Request) {
     let backendResponse: Response | null = null
     let rawPayload = ''
     let parsedPayload: Record<string, unknown> | null = null
-    for (const baseUrl of backendCandidates) {
+    for (const endpointUrl of backendUrlCandidates) {
       const controller = new AbortController()
       const timeoutHandle = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS)
       try {
-        backendResponse = await fetch(`${baseUrl}/upload`, {
+        backendResponse = await fetch(endpointUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fileName, csvText }),

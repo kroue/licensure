@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getBackendBaseCandidates } from '@/lib/backend-url'
+import { getBackendEndpointCandidates } from '@/lib/backend-url'
 
 export const runtime = 'nodejs'
 
@@ -26,16 +26,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Either uploadId or rows is required.' }, { status: 400 })
     }
 
-    const backendCandidates = getBackendBaseCandidates()
+    const backendUrlCandidates = getBackendEndpointCandidates('/predict')
     let backendResponse: Response | null = null
     let payload: Record<string, unknown> | null = null
     let rawPayload = ''
 
-    for (const baseUrl of backendCandidates) {
+    for (const endpointUrl of backendUrlCandidates) {
       const controller = new AbortController()
       const timeoutHandle = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS)
       try {
-        backendResponse = await fetch(`${baseUrl}/predict`, {
+        backendResponse = await fetch(endpointUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ uploadId: uploadId || undefined, rows }),

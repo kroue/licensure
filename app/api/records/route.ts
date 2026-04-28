@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getBackendBaseCandidates } from '@/lib/backend-url'
+import { getBackendEndpointCandidates } from '@/lib/backend-url'
 
 export const runtime = 'nodejs'
 
@@ -23,13 +23,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'uploadId is required.' }, { status: 400 })
     }
 
-    const backendCandidates = getBackendBaseCandidates()
+    const backendUrlCandidates = getBackendEndpointCandidates('/records')
     let backendResponse: Response | null = null
     let payload: Record<string, unknown> | null = null
     let rawPayload = ''
 
-    for (const baseUrl of backendCandidates) {
-      backendResponse = await fetch(`${baseUrl}/records`, {
+    for (const endpointUrl of backendUrlCandidates) {
+      backendResponse = await fetch(endpointUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uploadId }),
