@@ -376,6 +376,91 @@ def clean_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[d
     return cleaned_rows, issues
 
 
+def train_model_from_dataset() -> tuple[Pipeline, float]:
+    dataset_path = resolve_dataset_path()
+    if dataset_path is None:
+        searched_paths = [
+            str(ROOT_DIR / DATASET_FILENAME),
+            str(BACKEND_DIR / DATASET_FILENAME),
+            str(Path.cwd() / DATASET_FILENAME),
+        ]
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                f"Training dataset not found ({DATASET_FILENAME}). "
+                f"Searched dataset paths: {', '.join(searched_paths)}"
+            ),
+        )
+
+    df = pd.read_csv(dataset_path, encoding="latin-1")
+    df.columns = [str(c).strip() for c in df.columns]
+
+    if "Result" not in df.columns:
+        raise HTTPException(status_code=500, detail="Training dataset has no Result column.")
+
+    df["Fail"] = df["Result"].astype(str).str.strip().str.upper().eq("FAILED").astype(int)
+
+    for column in FEATURE_COLUMNS:
+        if column not in df.columns:
+            df[column] = np.nan
+
+    for column in FEATURE_COLUMNS:
+        df[column] = df[column].map(lambda v: normalize_value(column, v))
+
+    X_full = df[FEATURE_COLUMNS].copy()
+    y_full = df["Fail"].astype(int).copy()
+
+    num_cols = [c for c in FEATURE_COLUMNS if c in NUMERIC_COLUMNS]
+    cat_cols = [c for c in FEATURE_COLUMNS if c not in NUMERIC_COLUMNS]
+
+    try:
+        encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
+    except TypeError:
+        encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", SimpleImputer(strategy="median"), num_cols),
+            (
+                "cat",
+                Pipeline(
+                    steps=[
+                        ("imputer", SimpleImputer(strategy="most_frequent")),
+                        ("encoder", encoder),
+                    ]
+                ),
+                cat_cols,
+            ),
+        ]
+    )
+
+    classifier = RandomForestClassifier(
+        n_estimators=500,
+        max_depth=20,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        max_features="sqrt",
+        bootstrap=True,
+        class_weight="balanced",
+        random_state=RANDOM_STATE,
+        n_jobs=-1,
+    )
+
+    pipeline = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("model", classifier),
+        ]
+    )
+
+    cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=RANDOM_STATE)
+    scores = cross_val_score(pipeline, X_full, y_full, scoring="accuracy", cv=cv, n_jobs=-1)
+    model_accuracy_pct = float(np.nanmean(scores) * 100.0)
+
+    pipeline.fit(X_full, y_full)
+    return pipeline, model_accuracy_pct
+
+
 def ensure_training_model() -> Pipeline:
     global _trained_pipeline, _model_accuracy_pct
     with _model_lock:
@@ -383,112 +468,31 @@ def ensure_training_model() -> Pipeline:
             return _trained_pipeline
 
         model_path = resolve_model_artifact_path()
-        if model_path is not None:
-            try:
-                with model_path.open("rb") as handle:
-                    loaded = pickle.load(handle)
-                if isinstance(loaded, Pipeline):
-                    _trained_pipeline = loaded
-                    metadata_path = resolve_model_metadata_path(model_path)
-                    loaded_accuracy = load_model_metadata(metadata_path)
-                    _model_accuracy_pct = loaded_accuracy if loaded_accuracy is not None else 0.0
-                    return _trained_pipeline
-            except Exception as error:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to load model artifact at {model_path}: {error}",
-                ) from error
-
-        dataset_path = resolve_dataset_path()
-        if dataset_path is None:
-            searched_paths = [
-                str(ROOT_DIR / DATASET_FILENAME),
-                str(BACKEND_DIR / DATASET_FILENAME),
-                str(Path.cwd() / DATASET_FILENAME),
-            ]
+        if model_path is None:
             raise HTTPException(
                 status_code=500,
                 detail=(
-                    f"Model artifact not found ({MODEL_ARTIFACT_FILENAME}) and training dataset not found ({DATASET_FILENAME}). "
-                    f"Searched dataset paths: {', '.join(searched_paths)}"
+                    f"Model artifact not found: {MODEL_ARTIFACT_FILENAME}. "
+                    "Generate it using backend/export_model_artifact.py and redeploy."
                 ),
             )
 
-        df = pd.read_csv(dataset_path, encoding="latin-1")
-        df.columns = [str(c).strip() for c in df.columns]
-
-        if "Result" not in df.columns:
-            raise HTTPException(status_code=500, detail="Training dataset has no Result column.")
-
-        df["Fail"] = df["Result"].astype(str).str.strip().str.upper().eq("FAILED").astype(int)
-
-        for column in FEATURE_COLUMNS:
-            if column not in df.columns:
-                df[column] = np.nan
-
-        for column in FEATURE_COLUMNS:
-            df[column] = df[column].map(lambda v: normalize_value(column, v))
-
-        X_full = df[FEATURE_COLUMNS].copy()
-        y_full = df["Fail"].astype(int).copy()
-
-        num_cols = [c for c in FEATURE_COLUMNS if c in NUMERIC_COLUMNS]
-        cat_cols = [c for c in FEATURE_COLUMNS if c not in NUMERIC_COLUMNS]
-
         try:
-            encoder = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
-        except TypeError:
-            encoder = OneHotEncoder(handle_unknown="ignore", sparse=False)
+            with model_path.open("rb") as handle:
+                loaded = pickle.load(handle)
+        except Exception as error:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to load model artifact at {model_path}: {error}",
+            ) from error
 
-        preprocessor = ColumnTransformer(
-            transformers=[
-                ("num", SimpleImputer(strategy="median"), num_cols),
-                (
-                    "cat",
-                    Pipeline(
-                        steps=[
-                            ("imputer", SimpleImputer(strategy="most_frequent")),
-                            ("encoder", encoder),
-                        ]
-                    ),
-                    cat_cols,
-                ),
-            ]
-        )
+        if not isinstance(loaded, Pipeline):
+            raise HTTPException(status_code=500, detail="Loaded model artifact is not a valid sklearn Pipeline.")
 
-        classifier = RandomForestClassifier(
-            n_estimators=500,
-            max_depth=20,
-            min_samples_split=2,
-            min_samples_leaf=1,
-            max_features="sqrt",
-            bootstrap=True,
-            class_weight="balanced",
-            random_state=RANDOM_STATE,
-            n_jobs=-1,
-        )
-
-        pipeline = Pipeline(
-            steps=[
-                ("preprocessor", preprocessor),
-                ("model", classifier),
-            ]
-        )
-
-        # Mirror the new notebook validation setup with stratified 10-fold accuracy.
-        cv = StratifiedKFold(n_splits=10, shuffle=True, random_state=RANDOM_STATE)
-        scores = cross_val_score(pipeline, X_full, y_full, scoring="accuracy", cv=cv, n_jobs=-1)
-        _model_accuracy_pct = float(np.nanmean(scores) * 100.0)
-
-        # Fit final model on full dataset for inference after cross-validation.
-        pipeline.fit(X_full, y_full)
-        # Save artifact for future deploys so runtime does not require training CSV.
-        try:
-            save_model_artifact(pipeline, _model_accuracy_pct)
-        except Exception:
-            pass
-
-        _trained_pipeline = pipeline
+        _trained_pipeline = loaded
+        metadata_path = resolve_model_metadata_path(model_path)
+        loaded_accuracy = load_model_metadata(metadata_path)
+        _model_accuracy_pct = loaded_accuracy if loaded_accuracy is not None else 0.0
         return _trained_pipeline
 
 
