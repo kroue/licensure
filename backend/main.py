@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from io import StringIO
 import os
+import pickle
+import json
 from pathlib import Path
 from threading import Lock
 from typing import Any
@@ -26,6 +28,8 @@ MAX_ISSUES_IN_RESPONSE = 200
 ROOT_DIR = Path(__file__).resolve().parents[1]
 BACKEND_DIR = Path(__file__).resolve().parent
 DATASET_FILENAME = "v7 LiCEnSURE Dataset.csv"
+MODEL_ARTIFACT_FILENAME = "licensure_model.pkl"
+MODEL_METADATA_FILENAME = "licensure_model_metadata.json"
 
 REQUIRED_COLUMNS = [
     "Student_Code",
@@ -161,6 +165,54 @@ def resolve_dataset_path() -> Path | None:
             return candidate
 
     return None
+
+
+def resolve_model_artifact_path() -> Path | None:
+    override = os.environ.get("MODEL_ARTIFACT_PATH", "").strip()
+    if override:
+        candidate = Path(override)
+        if candidate.exists():
+            return candidate
+
+    candidates = [
+        BACKEND_DIR / MODEL_ARTIFACT_FILENAME,
+        ROOT_DIR / MODEL_ARTIFACT_FILENAME,
+        Path.cwd() / MODEL_ARTIFACT_FILENAME,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def resolve_model_metadata_path(model_path: Path) -> Path:
+    return model_path.with_name(MODEL_METADATA_FILENAME)
+
+
+def load_model_metadata(path: Path) -> float | None:
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    accuracy = payload.get("modelAccuracy")
+    if isinstance(accuracy, (int, float)):
+        return float(accuracy)
+    return None
+
+
+def save_model_artifact(pipeline: Pipeline, model_accuracy_pct: float) -> Path:
+    artifact_path = BACKEND_DIR / MODEL_ARTIFACT_FILENAME
+    with artifact_path.open("wb") as handle:
+        pickle.dump(pipeline, handle)
+
+    metadata_path = resolve_model_metadata_path(artifact_path)
+    metadata_path.write_text(
+        json.dumps({"modelAccuracy": round(float(model_accuracy_pct), 2)}, indent=2),
+        encoding="utf-8",
+    )
+    return artifact_path
 
 
 def normalize_header(value: str) -> str:
@@ -330,6 +382,23 @@ def ensure_training_model() -> Pipeline:
         if _trained_pipeline is not None:
             return _trained_pipeline
 
+        model_path = resolve_model_artifact_path()
+        if model_path is not None:
+            try:
+                with model_path.open("rb") as handle:
+                    loaded = pickle.load(handle)
+                if isinstance(loaded, Pipeline):
+                    _trained_pipeline = loaded
+                    metadata_path = resolve_model_metadata_path(model_path)
+                    loaded_accuracy = load_model_metadata(metadata_path)
+                    _model_accuracy_pct = loaded_accuracy if loaded_accuracy is not None else 0.0
+                    return _trained_pipeline
+            except Exception as error:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to load model artifact at {model_path}: {error}",
+                ) from error
+
         dataset_path = resolve_dataset_path()
         if dataset_path is None:
             searched_paths = [
@@ -340,8 +409,8 @@ def ensure_training_model() -> Pipeline:
             raise HTTPException(
                 status_code=500,
                 detail=(
-                    f"Training dataset not found: {DATASET_FILENAME}. "
-                    f"Searched: {', '.join(searched_paths)}"
+                    f"Model artifact not found ({MODEL_ARTIFACT_FILENAME}) and training dataset not found ({DATASET_FILENAME}). "
+                    f"Searched dataset paths: {', '.join(searched_paths)}"
                 ),
             )
 
@@ -413,6 +482,11 @@ def ensure_training_model() -> Pipeline:
 
         # Fit final model on full dataset for inference after cross-validation.
         pipeline.fit(X_full, y_full)
+        # Save artifact for future deploys so runtime does not require training CSV.
+        try:
+            save_model_artifact(pipeline, _model_accuracy_pct)
+        except Exception:
+            pass
 
         _trained_pipeline = pipeline
         return _trained_pipeline
