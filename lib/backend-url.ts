@@ -28,5 +28,11 @@ export function getBackendBaseCandidates(): string[] {
     candidates.push('http://127.0.0.1:8000')
   }
 
-  return [...new Set(candidates)]
+  const unique: string[] = []
+  for (const candidate of candidates) {
+    if (!unique.includes(candidate)) {
+      unique.push(candidate)
+    }
+  }
+  return unique
 }
